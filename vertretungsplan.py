@@ -46,66 +46,72 @@ def getDoc(username, password):
         raise(ValueError("No URL given."))
     return(bs(requests.get(url).text, "html.parser"))
 
-def getURL(username, password):
-    try:
-        print("Trying login via Desktop API...")
-        LOGIN_URL = "https://www.dsbmobile.de/Login.aspx"
-        DATA_URL = "https://www.dsbmobile.de/jhw-ecd92528-a4b9-425f-89ee-c7038c72b9a6.ashx/GetData"
+def try_get_url_via_desktop_api(username, password):
+    LOGIN_URL = "https://www.dsbmobile.de/Login.aspx"
+    DATA_URL = "https://www.dsbmobile.de/jhw-ecd92528-a4b9-425f-89ee-c7038c72b9a6.ashx/GetData"
+    
+    session = requests.Session()
 
-        session = requests.Session()
+    r = session.get(LOGIN_URL)
 
-        r = session.get(LOGIN_URL)
+    page = bs(r.text, "html.parser")
+    data = {
+        "txtUser": username,
+        "txtPass": password,
+        "ctl03": "Anmelden",
+    }
+    fields = ["__LASTFOCUS", "__VIEWSTATE", "__VIEWSTATEGENERATOR",
+        "__EVENTTARGET", "__EVENTARGUMENT", "__EVENTVALIDATION"]
+    for field in fields:
+        element = page.find(id=field)
+        if not element is None: data[field] = element.get("value")
+    
+    session.post(LOGIN_URL, data)
+    
+    params = {
+        "UserId": "",
+        "UserPw": "",
+        "Abos": [],
+        "AppVersion": "2.3",
+        "Language": "de",
+        "OsVersion": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36",
+        "AppId": "",
+        "Device": "WebApp",
+        "PushId": "",
+        "BundleId": "de.heinekingmedia.inhouse.dsbmobile.web",
+        "Date": "2019-11-06T16:03:11.322Z",
+        "LastUpdate": "2019-11-06T16:03:11.322Z"
+    }
+    # Convert params into the right format
+    params_bytestring = json.dumps(params, separators=(',', ':')).encode("UTF-8")
+    params_compressed = base64.b64encode(gzip.compress(params_bytestring)).decode("UTF-8")
+    json_data = {"req": {"Data": params_compressed, "DataType": 1}}
 
-        page = bs(r.text, "html.parser")
-        data = {
-            "txtUser": username,
-            "txtPass": password,
-            "ctl03": "Anmelden",
-        }
-        fields = ["__LASTFOCUS", "__VIEWSTATE", "__VIEWSTATEGENERATOR",
-            "__EVENTTARGET", "__EVENTARGUMENT", "__EVENTVALIDATION"]
-        for field in fields:
-            element = page.find(id=field)
-            if not element is None: data[field] = element.get("value")
-        
-        session.post(LOGIN_URL, data)
-        
-        params = {
-            "UserId": "",
-            "UserPw": "",
-            "Abos": [],
-            "AppVersion": "2.3",
-            "Language": "de",
-            "OsVersion": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36",
-            "AppId": "",
-            "Device": "WebApp",
-            "PushId": "",
-            "BundleId": "de.heinekingmedia.inhouse.dsbmobile.web",
-            "Date": "2019-11-06T16:03:11.322Z",
-            "LastUpdate": "2019-11-06T16:03:11.322Z"
-        }
-        # Convert params into the right format
-        params_bytestring = json.dumps(params, separators=(',', ':')).encode("UTF-8")
-        params_compressed = base64.b64encode(gzip.compress(params_bytestring)).decode("UTF-8")
-        json_data = {"req": {"Data": params_compressed, "DataType": 1}}
+    headers = {"Referer": "www.dsbmobile.de"}
+    r = session.post(DATA_URL, json=json_data, headers=headers)
 
-        headers = {"Referer": "www.dsbmobile.de"}
-        r = session.post(DATA_URL, json=json_data, headers=headers)
+    data_compressed = json.loads(r.content)["d"]
+    data = json.loads(gzip.decompress(base64.b64decode(data_compressed)))
 
-        data_compressed = json.loads(r.content)["d"]
-        data = json.loads(gzip.decompress(base64.b64decode(data_compressed)))
+    table_url = data["ResultMenuItems"][0]["Childs"][2]["Root"]["Childs"][0]["Childs"][0]["Detail"]
+    return table_url
 
-        table_url = data["ResultMenuItems"][0]["Childs"][2]["Root"]["Childs"][0]["Childs"][0]["Detail"]
-        print(table_url)
-        return(table_url)
-    except Exception as e_desktop:
-        logger.exception("Login/GetData via Desktop API failed, trying Android API...")
+# Parameter `tries` says how often to try requesting each API
+def getURL(username, password, tries=10):
+    for i in range(tries):
         try:
-            myDSB = dsbapi.DSBApi(username, password)
-            return(myDSB.fetch_entries())
-        except Exception as e_android:
-            print("Android login failed too")
-            raise e_android
+            print("Trying login via Desktop API...")
+            table_url = try_get_url_via_desktop_api(username, password)
+            print(table_url)
+            return(table_url)
+        except Exception as e_desktop:
+            logger.exception("Login/GetData via Desktop API failed, trying Android API...")
+            try:
+                myDSB = dsbapi.DSBApi(username, password)
+                return(myDSB.fetch_entries())
+            except Exception as e_android:
+                logger.exception("Android login failed, too")
+    raise Exception(f"No login method worked properly after {tries} tries")
 
 def getNews(username, password):
     doc = getDoc(username, password)
