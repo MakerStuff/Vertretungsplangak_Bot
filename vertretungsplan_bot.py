@@ -117,7 +117,7 @@ def checktimetable(update, context):
     user_id = update.message.from_user['id']
     parameters = update.message.text.split(" ")[1:]
     try:
-        user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
+        user_info = json.loads(open(path_to_user_data + str(user_id) + ".json", encoding="utf-8").read())
         if "sort" in parameters:
             user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
             with open(path_to_user_data + str(user_id) + ".json", "w") as file:
@@ -163,18 +163,18 @@ def createtimetable(update, context):
         print(doc)
 
 @send_typing_action
-def info(update, context):
+def help(update, context):
     command_description = json.loads(open("command_description.json", "r", encoding="utf-8").read())
     if not update.message.text.split(" ")[1:]:
         message = "Die folgenden Befehle stehen zur Verfügung:\n"
         for a in dispatcher.handlers[0]:
             if type(a) == CommandHandler:
                 try:
-                    command = a.command[0]
-                    command_desc = command_description[command]
-                    message = message + "\n/" + command + " " + command_desc
+                    message = message + "\n/" + a.command[0] + " " + command_description[a.command[0]]
                 except KeyError:
-                    print("Es gibt (noch) keine Erklärung für \"" + command + "\"")
+                    if str(update.message.chat_id) in json.loads(open("general_information.json", encoding="utf-8").read())["supporter"]:
+                        message = message + "\n/" + a.command[0]
+                    print("Es gibt (noch) keine Erklärung für \"" + a.command[0] + "\"")
     else:
         message = "Hier sind Details zu den gefragten Befehlen:\n"
         for command in update.message.text.split(" ")[1:]:
@@ -201,7 +201,7 @@ def auskunft(update, context):
 
     for a in range(int(parameters[0])):
         try:
-            user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
+            user_info = json.loads(open(path_to_user_data + str(user_id) + ".json", encoding="utf-8").read())
         except FileNotFoundError:
             context.bot.send_message(chat_id=update.message.chat_id, text="Ich habe keine Informationen über dich gespeichert. Bitte trage deinen Stundenplan mit /addlesson ein, damit ich dir helfen kann.")
             return
@@ -256,7 +256,7 @@ def changelogin(update, context):
     user_id = update.message.from_user['id']
     parameters = update.message.text.split(" ")[1:]
     if len(parameters) == 2:
-        user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
+        user_info = json.loads(open(path_to_user_data + str(user_id) + ".json", encoding="utf-8").read())
         user_info['Benutzername'] = parameters[0]
         user_info['Passwort'] = parameters[1]
         with open(path_to_user_data + str(user_id) + ".json", 'w') as file:
@@ -270,7 +270,7 @@ def changelogin(update, context):
 def user_data(update, context):
     user_id = update.message.from_user['id']
     try:
-        user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
+        user_info = json.loads(open(path_to_user_data + str(user_id) + ".json", encoding="utf-8").read())
         context.bot.send_document(chat_id=update.message.chat_id, document=open(f"{user_id}.json", 'rb'))
         context.bot.send_message(chat_id=update.message.chat_id, text="Hier sind alle Daten, die dem System über dich bekannt sind.")
     except FileNotFoundError:
@@ -297,7 +297,7 @@ def aktuell(update, context):
 def support(update, context):
     parameters = update.message.text.split(" ")[1:]
     if parameters and not update.message.from_user["is_bot"]:
-        data = json.loads(open("general_information.json").read())
+        data = json.loads(open("general_information.json", encoding="utf-8").read())
         support_info = data["supporter"]
         least_clients = min([len(support_info[a]["clients"]) for a in support_info])
         supporter = ""
@@ -338,7 +338,7 @@ def answer_support_question(update, context):
 @send_typing_action
 def send_emergency_url(update, context):
     parameters = update.message.text.split(" ")[1:]
-    info = json.loads(open("general_information.json", "r").read())
+    info = json.loads(open("general_information.json", "r", encoding="utf-8").read())
     if update.message.chat_id in info["supporter"]:
         info["emergency_url"] = parameters[0]
     with open("general_information.json") as file:
@@ -364,7 +364,15 @@ def report_error(update, context):
 
 @send_typing_action
 def status(update, context):
-    context.bot.send_message(chat_id=update.message.chat_id, text="test")
+    # Make it possible for the support to change this message
+    parameters = update.message.text.split(" ")[1:]
+    if str(update.message.chat_id) in json.loads(open("general_information.json", encoding="utf-8").read())["supporter"]:
+        if parameters:
+            info = json.loads(open("general_information.json", "r", encoding="utf-8").read())
+            info["status_message"] = " ".join(parameters)
+            with open("general_information.json", "w", encoding="utf-8") as file:
+                file.write(info)
+                file.close()
     context.bot.send_message(chat_id=update.message.chat_id, text=str(json.loads(open("general_information.json", encoding='utf-8').read())["status_message"]))
 
 @send_typing_action
@@ -375,7 +383,7 @@ print("Hello World!")
 print("Running as " + str(__name__))
 if __name__ == "__main__":
     from telegram.ext import CommandHandler
-    dispatcher.add_handler(CommandHandler('help', info))
+    dispatcher.add_handler(CommandHandler('help', help))
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('status', status))
     dispatcher.add_handler(CommandHandler('addlesson', addlesson))
