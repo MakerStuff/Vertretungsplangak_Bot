@@ -8,19 +8,20 @@ import dsbapi
 
 logger = logging.getLogger()
 
-wday = {'Mo':0,
-        'Di':1,
-        'Mi':2,
-        'Do':3,
-        'Fr':4,
-        'Sa':5,
-        'So':6}
-wtype = {'A':0,
-        'a':0,
-        'B':1,
-        'b':1}
+wday = {'Mo': 0,
+        'Di': 1,
+        'Mi': 2,
+        'Do': 3,
+        'Fr': 4,
+        'Sa': 5,
+        'So': 6}
+wtype = {'A': 0,
+         'a': 0,
+         'B': 1,
+         'b': 1}
 
-def update(username, password, save = True):
+
+def update(username, password, save=True):
     doc = getDoc(username, password)
     einträge = []
     for a in doc.find_all('center'):
@@ -28,7 +29,10 @@ def update(username, password, save = True):
             datum = a.find_all('div')[0].text.split(" ")[0]
             for b in a.find_all('tr'):
                 if b.text != "":
-                    eintrag = [c.text.replace(" - ", ", ").replace("-","").replace("\xa0","").replace("(","").replace(")","") for c in b.find_all('td')]
+                    eintrag = [
+                        c.text.replace(" - ", ", ").replace("-", "").replace("\xa0", "").replace("(", "").replace(")",
+                                                                                                                  "")
+                        for c in b.find_all('td')]
                     eintrag.append(datum)
                     if len(eintrag) == 10:
                         einträge.append(eintrag)
@@ -38,13 +42,15 @@ def update(username, password, save = True):
         with open(f"{username}_buffer.json", "w") as file:
             file.write(json.dumps(einträge))
             file.close()
-    return(einträge)
+    return (einträge)
+
 
 def getDoc(username, password):
     url = getURL(username, password)
     if url == '':
-        raise(ValueError("No URL given."))
-    return(bs(requests.get(url).text, "html.parser"))
+        raise (ValueError("No URL given."))
+    return (bs(requests.get(url).text, "html.parser"))
+
 
 def try_get_url_via_desktop_api(username, password):
     LOGIN_URL = "https://www.dsbmobile.de/Login.aspx"
@@ -61,13 +67,13 @@ def try_get_url_via_desktop_api(username, password):
         "ctl03": "Anmelden",
     }
     fields = ["__LASTFOCUS", "__VIEWSTATE", "__VIEWSTATEGENERATOR",
-        "__EVENTTARGET", "__EVENTARGUMENT", "__EVENTVALIDATION"]
+              "__EVENTTARGET", "__EVENTARGUMENT", "__EVENTVALIDATION"]
     for field in fields:
         element = page.find(id=field)
         if not element is None: data[field] = element.get("value")
-    
+
     session.post(LOGIN_URL, data)
-    
+
     params = {
         "UserId": "",
         "UserPw": "",
@@ -111,7 +117,13 @@ def getURL(username, password, tries=10):
                 return(myDSB.fetch_entries())
             except Exception as e_android:
                 logger.exception("Android login failed, too")
-    raise Exception(f"No login method worked properly after {tries} tries")
+    
+    # Try the emergency-url as a last resort
+    general_information_json = json.load(open("general_information.json"))
+    if "emergency_url" in general_information:
+        return general_information["emergency_url"]
+    else:
+        raise Exception(f"No login method worked properly after {tries} tries")
 
 def getNews(username, password):
     doc = getDoc(username, password)
@@ -124,10 +136,11 @@ def getNews(username, password):
                     information.append(info)
         except KeyError:
             pass
-    return(information)
+    return (information)
 
-def getRelevants(kursliste, username, password, level = 0):
-    #doc = bs(doc, 'html.parser')
+
+def getRelevants(kursliste, username, password, level=0):
+    # doc = bs(doc, 'html.parser')
     einträge = update(username, password)
     relevante_einträge = []
     eintrag: []
@@ -139,29 +152,33 @@ def getRelevants(kursliste, username, password, level = 0):
                         relevante_einträge.append(eintrag)
                 else:
                     match = [False for a in range(6)]
-                    if kurs[0] in eintrag[0]: # class
+                    if kurs[0] in eintrag[0]:  # class
                         match[0] = True
-                    #else:
+                    # else:
                     #    continue
-                    if wday[kurs[1].capitalize()] == time.gmtime(datetime.datetime.strptime(eintrag[9], '%d.%m.%Y').timestamp()-time.altzone).tm_wday: # week day
+                    if wday[kurs[1].capitalize()] == time.gmtime(datetime.datetime.strptime(eintrag[9],
+                                                                                            '%d.%m.%Y').timestamp() - time.altzone).tm_wday:  # week day
                         match[1] = True
-                    if kurs[2] in eintrag[1]: # lesson
+                    if kurs[2] in eintrag[1]:  # lesson
                         match[2] = True
-                    if kurs[3] == eintrag[3]: # subject
+                    if kurs[3] == eintrag[3]:  # subject
                         match[3] = True
-                    if kurs[4] == eintrag[5]: # room
+                    if kurs[4] == eintrag[5]:  # room
                         match[4] = True
-                    if len(kurs) == 6 and int((time.gmtime(datetime.datetime.strptime(eintrag[9], '%d.%m.%Y').timestamp()-time.altzone).tm_yday / 7) % len(wtype)) == wtype[kurs[-1]]:# week type
+                    if len(kurs) == 6 and int((time.gmtime(datetime.datetime.strptime(eintrag[9],
+                                                                                      '%d.%m.%Y').timestamp() - time.altzone).tm_yday / 7) % len(
+                            wtype)) == wtype[kurs[-1]]:  # week type
                         match[5] = True
                     if len([a for a in match if a == True]) >= level:
-                        #print(str(eintrag) + " für Kurs " + str(kurs) + " hat " + str(len([a for a in match if a == True])) + " Übereinstimmungen.")
+                        # print(str(eintrag) + " für Kurs " + str(kurs) + " hat " + str(len([a for a in match if a == True])) + " Übereinstimmungen.")
                         if not eintrag in relevante_einträge:
                             relevante_einträge.append(eintrag)
             except KeyError:
                 pass
-    #for a in relevante_einträge:
-        #print(a[9] + ": " + a[1] + ", " + a[2] + " --> " + a[7])
-    return(relevante_einträge)
+    # for a in relevante_einträge:
+    # print(a[9] + ": " + a[1] + ", " + a[2] + " --> " + a[7])
+    return (relevante_einträge)
+
 
 if __name__ == "__main__":
     try:
@@ -169,8 +186,9 @@ if __name__ == "__main__":
         doc = bs(requests.get("http://www.gak-buchholz.de/unterricht/vertretungsplan/").text, "html.parser")
         username = [a.text.split(" ")[-1] for a in doc.find_all('strong') if "Benutzername: " in a.text][0]
         password = [a.text.split(" ")[-1] for a in doc.find_all('strong') if "Passwort: " in a.text][0]
-        #print(f"Login-Daten für Gymnasium am Kattenberge:\n\tBenutzername: {username}\n\tPasswort: {password}")
-        print("Der Autor dieser Software übernimmt keine Garantie für ihr richtiges Verhalten. Es bestehen keine Ansprüche auf Behebung eventueller Fehler oder sonstige Dienstleistungen. Der Autor übernimmt keine Haftung für den Inhalt der dargestellten Informationen.")
+        # print(f"Login-Daten für Gymnasium am Kattenberge:\n\tBenutzername: {username}\n\tPasswort: {password}")
+        print(
+            "Der Autor dieser Software übernimmt keine Garantie für ihr richtiges Verhalten. Es bestehen keine Ansprüche auf Behebung eventueller Fehler oder sonstige Dienstleistungen. Der Autor übernimmt keine Haftung für den Inhalt der dargestellten Informationen.")
         print()
         for a in getNews(username, password):
             print(a[0] + ": " + a[1])
@@ -189,7 +207,10 @@ if __name__ == "__main__":
                 # 8: Text
                 # 9: Datum
                 # 10: Übereinstimmungslevel
-                print(str([a for a in wday if wday[a] == time.gmtime(datetime.datetime.strptime(eintrag[9], '%d.%m.%Y').timestamp()-time.altzone).tm_wday][0].capitalize()) + " " + eintrag[9] + " " + eintrag[1] + ": " + eintrag[0] + " " + eintrag[3] + " " + eintrag[5] + " --> "
+                print(str([a for a in wday if wday[a] == time.gmtime(
+                    datetime.datetime.strptime(eintrag[9], '%d.%m.%Y').timestamp() - time.altzone).tm_wday][
+                              0].capitalize()) + " " + eintrag[9] + " " + eintrag[1] + ": " + eintrag[0] + " " +
+                      eintrag[3] + " " + eintrag[5] + " --> "
                       + eintrag[7] + " " + eintrag[2]
                       + " in Raum " * bool(len(eintrag[4])) + eintrag[4]
                       + ". Beschreibung: " * bool(len(eintrag[8])) + eintrag[8]
