@@ -1,20 +1,21 @@
-import datetime
+﻿import datetime
 import json
+import logging
 import os
 import time
+from functools import wraps
 
 import requests
 from bs4 import BeautifulSoup as bs
-from telegram import ChatAction
+from telegram import ChatAction, ParseMode
 from telegram.ext import Updater
 
 import vertretungsplan
+import csv
 
 updater = Updater(token=json.loads(open("general_information.json", encoding="utf-8").read())["token"], use_context=True)
 
 dispatcher = updater.dispatcher
-
-import logging
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -22,17 +23,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-from functools import wraps
-
-def send_typing_action(func):
-    """Sends typing action while processing func command."""
-
-    @wraps(func)
-    def command_func(update, context, *args, **kwargs):
-        context.bot.send_chat_action(chat_id=update.effective_message.chat_id, action=ChatAction.TYPING)
-        return func(update, context,  *args, **kwargs)
-
-    return command_func
+path_to_user_data = "userdata/"
 
 def send_typing_action(func):
     """Sends typing action while processing func command."""
@@ -82,11 +73,11 @@ def addlesson(update, context):
         context.bot.send_message(chat_id = update.message.chat_id, text = "Nutze \"/addlesson help\" um zu lernen, wie du eine Stunde zu deinem Stundenplan hinzufügst.")
         return
     if parameters == ['help']:
-        context.bot.send_message(chat_id=user_id, text="Ein Eintrag für eine Stunde muss in einer der folgenden Formen angegeben werden:\n\nGib deine Klasse so an, wie sie auf dem Vertretungsplan angezeigt wird. Beispielsweise:\n05A\n10B\n\n ODER liste folgende Informationen durch ein Leerzeichen getrennt auf:\n - Klasse\n - Wochentag des Kurses (mo, di, mi, do, ...)\n - Stunde (Nur eine Stunde pro Eintrag)\n - Fach (Abgekürzt wie auf dem offiziellen Vertretungsplan)\n - Raum\n - (falls angegeben) Wochentyp (A oder B)\nBeispielsweise:\n/addlesson 05A mo 1 Deu 1.11\n/addlesson 05A mo 2 Deu 1.11")
+        context.bot.send_message(chat_id=user_id, text="Ein Eintrag für eine Stunde muss in einer der folgenden Formen angegeben werden:\n\nGib deine Klasse so an, wie sie auf dem Vertretungsplan angezeigt wird. Beispielsweise:\n05A\n10B\n\n ODER liste folgende Informationen durch ein Leerzeichen getrennt auf:\n - Klasse\n - Wochentag des Kurses (mo, di, mi, do, ...)\n - Stunde (Nur eine Stunde pro Eintrag)\n - Fach (Abgekürzt wie auf dem offiziellen Vertretungsplan)\n - Raum\n - (falls angegeben) Wochentyp (A oder B)\nBeispielsweise:\n/addlesson 05A mo 1 Deu 1.11\n/addlesson 12 mo 3-4 Deu 2.34")
         return
     elif len(parameters) in (1, 5, 6,):
         try:
-            user_info = eval(open(str(user_id) + ".json").read())
+            user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
         except (FileNotFoundError, SyntaxError):
             user_info = {'Benutzername': 'Default',
                          'Passwort': 'Default',
@@ -95,14 +86,17 @@ def addlesson(update, context):
             parameters = [a.capitalize() for a in parameters]
         else:
             parameters[0] = parameters[0].upper()
-        user_info['Stundenplan'].append(parameters)
-        user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
+        for stunde in parameters[2].split("-"):
+            lesson = parameters
+            lesson[2] = stunde
+            user_info['Stundenplan'].append(lesson)
+            user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
+        with open(path_to_user_data + str(user_id) + ".json", "w") as file:
+            file.write(json.dumps(user_info))
+            file.close()
         context.bot.send_message(chat_id = update.message.chat_id, text = str(parameters) + " wurde erfolgreich deinem Stundenplan hinzugefügt.")
     else:
         context.bot.send_message(chat_id = update.message.chat_id, text = "Unbekanntes Format. Nutze \"/addlesson help\" zur Hilfe.")
-    with open(str(user_id) + ".json","w") as file:
-        file.write(str(user_info))
-        file.close()
 
 @send_typing_action
 def rmlesson(update, context):
@@ -111,9 +105,9 @@ def rmlesson(update, context):
     if parameters == []:
         context.bot.send_message(chat_id = update.message.chat_id, text = "Bitte gib die Nummer deines Eintrags an. Du kannst mit /checktimetable sehen, welcher Stunde welche Nummer zugeordnet wurde.")
         return(None)
-    user_info = eval(open(str(user_id) + ".json").read())
+    user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
     del user_info['Stundenplan'][int(parameters[0])-1]
-    with open(str(user_id) + ".json", "w") as file:
+    with open(path_to_user_data + str(user_id) + ".json", "w") as file:
         file.write(str(user_info))
         file.close()
     context.bot.send_message(chat_id = update.message.chat_id, text = "Dein Stundenplan wurde bearbeitet. Nutze /checktimetable um ihn zu überprüfen.")
@@ -123,23 +117,50 @@ def checktimetable(update, context):
     user_id = update.message.from_user['id']
     parameters = update.message.text.split(" ")[1:]
     try:
-        user_info = eval(open(str(user_id) + ".json").read())
+        user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
         if "sort" in parameters:
             user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
-            with open(str(user_id) + ".json", "w") as file:
+            with open(path_to_user_data + str(user_id) + ".json", "w") as file:
                 file.write(str(user_info))
                 file.close()
-        timetable_txt = ""
-        index = 1 # beginne bei 1 mit dem Zählen
-        for note in user_info['Stundenplan']:
-            timetable_txt = timetable_txt + str(index) + ". "
-            for entry in note:
-                timetable_txt = timetable_txt + str(entry) + "\t"
-            timetable_txt = timetable_txt + "\n"
-            index += 1
-        context.bot.send_message(chat_id=update.message.chat_id, text="Hier ist dein " + "sortierter " * ("sort" in update.message.text.split(" ")[1:]) + "Stundenplan:\n" + timetable_txt)
+        if "csv" in parameters:
+            if "help" in parameters:
+                context.bot.send_message(chat_id=update.message.chat_id, text="Nutze folgende Beschreibung, um deinen Stundenplan in Excel anzusehen:\nÖffne Excel\nKlicke auf \"Daten/Externe Daten abrufen/Aus Text\" und wähle die Datei aus, die dir der Bot nach /checktimetable csv zugesendet hat.\nWähle \"Getrennt\" aus und drücke auf \"Weiter\"\nSetzt einen Haken bei \"Komma\" un drücke auf \"Weiter\"\nDrücke auf \"Fertig stellen\"\nDrücke auf \"OK\"\nBearbeite deine Daten wie es dir beliebt.")
+            with open(str(user_id)+".csv", "w", encoding='utf-8') as timetable:
+                timetable_writer = csv.writer(timetable, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+                weekdays = vertretungsplan.wday
+                #timetable_writer.writerow(weekdays)
+
+                for lesson in range(max([int(subject[2]) for subject in user_info['Stundenplan']])):
+                    timetable_writer.writerow([" / ".join([" ".join([subject[a] for a in range(len(subject)) if not a in [1,2]]) for subject in user_info['Stundenplan'] if subject[1] == wday and int(subject[2]) == lesson+1]) for wday in weekdays])
+            csv_doc = open(str(user_id)+".csv", "rb", encoding='utf-8')
+            print("Read doc")
+            context.bot.send_document(chat_id=update.message.chat_id, document=csv_doc)
+        else:
+            timetable_txt = ""
+            index = 1 # beginne bei 1 mit dem Zählen
+            for note in user_info['Stundenplan']:
+                timetable_txt = timetable_txt + str(index) + ". "
+                for entry in note:
+                    timetable_txt = timetable_txt + str(entry) + "\t"
+                timetable_txt = timetable_txt + "\n"
+                index += 1
+            context.bot.send_message(chat_id=update.message.chat_id, text="Hier ist dein " + "sortierter " * ("sort" in update.message.text.split(" ")[1:]) + "Stundenplan:\n" + timetable_txt)
     except FileNotFoundError:
         context.bot.send_message(chat_id=update.message.chat_id, text="Ich kann keine Daten zu deinem Stundenplan finden. Nutze \"addlesson help\" um zu lernen, wie du deinen Stundenplan erstellen kannst.")
+
+@send_typing_action
+def createtimetable(update, context):
+    # Dieser Befehl erlaubt es dem Nutzer, den eigenen Stundenplan mit einer CSV-Datei zu ersetzen
+    user_id = update.message.from_user["id"]
+    parameters = update.message.text.split(" ")[1:]
+    if "help" in parameters:
+        context.bot.send_message(chat_id=update.message.chat_id, text="Wenn du dir unsicher bist, wie deine CSV-Tabelle aussehen soll, erstelle einige Einträge mit /addlesson und sieh dir die Datei mit \"/checktimetable csv\" an.")
+        return
+    if update.message.document:
+        doc = update.message.document
+        print(doc)
 
 @send_typing_action
 def info(update, context):
@@ -166,14 +187,26 @@ def auskunft(update, context):
     user_id = update.message.from_user['id']
     parameters = update.message.text.split(" ")[1:]
     reply = ""
+    default_iterations = 3
+    max_iterations = 7
     if parameters == []:
-        parameters.append(2)
-    for a in range(parameters[0]):
+        parameters = [default_iterations]
+    try:
+        parameters[0] = int(parameters[0])
+    except (ValueError, IndexError):
+        parameters[0] = default_iterations
+
+    if parameters[0] > max_iterations:
+        parameters[0] = max_iterations
+
+    for a in range(int(parameters[0])):
         try:
-            user_info = eval(open(str(user_id) + ".json").read())
+            user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
         except FileNotFoundError:
             context.bot.send_message(chat_id=update.message.chat_id, text="Ich habe keine Informationen über dich gespeichert. Bitte trage deinen Stundenplan mit /addlesson ein, damit ich dir helfen kann.")
             return
+
+        # Correct username and password
         username = user_info['Benutzername']
         password = user_info['Passwort']
         if username == "Default" == password:
@@ -198,7 +231,24 @@ def auskunft(update, context):
             reply = reply + "Für dich relevante Einträge:" + message + "\n\n"
         else:
             reply = reply + "Aktuell liegen keine Einträge für dich vor." + "\n\n"
-        context.bot.send_message(chat_id=update.message.chat_id, text=reply + "Bitte überprüfe die Einträge auf " + vertretungsplan.getURL(username, password))
+
+        # Last updated:
+        message = ""
+        try:
+            doc = bs(requests.get(vertretungsplan.getURL(username, password)).text, "html.parser")
+            last_update = [a.text for a in doc.find_all("p") if "Stand: " in a.text][0]
+            #for a in last_update.split("  "):
+            #    if not len([b for b in a if " " in b]) == 0:
+            #        message = message + a + "\n"
+            message = message + "Stand: " + " ".join(last_update.split(" Stand: ")[-1].split(" ")[0:2])
+            reply = reply + message + "\n"
+        except Exception as e:
+            print(e)
+            pass
+        reply_footer =  "Bitte überprüfe die Einträge auf <a href=\"" + vertretungsplan.getURL(username, password) + "\">der offiziellen Darstellung des Vertretungsplans</a>."
+        context.bot.send_message(chat_id=update.message.chat_id,
+                                 text=reply + reply_footer,
+                                 parse_mode=ParseMode.HTML)
         break
 
 @send_typing_action
@@ -206,10 +256,10 @@ def changelogin(update, context):
     user_id = update.message.from_user['id']
     parameters = update.message.text.split(" ")[1:]
     if len(parameters) == 2:
-        user_info = eval(open(str(user_id) + ".json").read())
+        user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
         user_info['Benutzername'] = parameters[0]
         user_info['Passwort'] = parameters[1]
-        with open(str(user_id) + ".json", 'w') as file:
+        with open(path_to_user_data + str(user_id) + ".json", 'w') as file:
             file.write(str(user_info))
             file.close()
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Dein Nutzerdaten wurden geändert zu\nBenutzername: {user_info['Benutzername']}\nPasswort: {user_info['Passwort']}")
@@ -220,7 +270,7 @@ def changelogin(update, context):
 def user_data(update, context):
     user_id = update.message.from_user['id']
     try:
-        user_info = eval(open(str(user_id) + ".json").read())
+        user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
         context.bot.send_document(chat_id=update.message.chat_id, document=open(f"{user_id}.json", 'rb'))
         context.bot.send_message(chat_id=update.message.chat_id, text="Hier sind alle Daten, die dem System über dich bekannt sind.")
     except FileNotFoundError:
@@ -229,7 +279,7 @@ def user_data(update, context):
 @send_typing_action
 def clear_data(update, context):
     user_id = update.message.from_user['id']
-    os.remove(str(user_id) + ".json")
+    os.remove(path_to_user_data + str(user_id) + ".json")
     try:
         open(str(user_id)+".json")
         print("Fehler beim Löschen der Daten eines Nutzers: Daten noch vorhanden:")
@@ -273,9 +323,10 @@ def answer_support_question(update, context):
     if str(update.message.chat_id) in json.loads(open("general_information.json", encoding="utf-8").read())["supporter"]:
         reply_message = "Du hast eine Antwort vom Support erhalten:\n\n" + " ".join(update.message.text.split(" ")[1:])
         user = update.message.reply_to_message.forward_from
-        print(user)
         supporter = update.message.chat_id
         if reply_message:
+            original_message = update.message.reply_to_message
+            print(original_message)
             context.bot.send_message(chat_id=user["id"], text=reply_message)
             success_message = "Die Antwort wurde erfolgreich an " + str(user) + " gesendet."
             context.bot.send_message(chat_id=supporter, text=success_message)
@@ -284,6 +335,17 @@ def answer_support_question(update, context):
     else:
         print(f"Unautorisierter Zugriff auf answer_service_qestion durch {update.message.from_user}")
 
+@send_typing_action
+def send_emergency_url(update, context):
+    parameters = update.message.text.split(" ")[1:]
+    info = json.loads(open("general_information.json", "r").read())
+    if update.message.chat_id in info["supporter"]:
+        info["emergency_url"] = parameters[0]
+    with open("general_information.json") as file:
+        file.write(json.dumps(info))
+        file.close()
+
+@send_typing_action
 def error(update, context):
     try:
         """Log Errors caused by Updates."""
@@ -292,6 +354,20 @@ def error(update, context):
     except Exception as e:
         print(e)
 
+@send_typing_action
+def report_error(update, context):
+    impossible_message = update.message.reply_to_message
+    try:
+        True
+    except:
+        pass
+
+@send_typing_action
+def status(update, context):
+    context.bot.send_message(chat_id=update.message.chat_id, text="test")
+    context.bot.send_message(chat_id=update.message.chat_id, text=str(json.loads(open("general_information.json", encoding='utf-8').read())["status_message"]))
+
+@send_typing_action
 def test(update, context):
     raise(Exception("Dieser Fehler ist Absicht!"))
 
@@ -299,23 +375,26 @@ print("Hello World!")
 print("Running as " + str(__name__))
 if __name__ == "__main__":
     from telegram.ext import CommandHandler
+    dispatcher.add_handler(CommandHandler('help', info))
     dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('status', status))
     dispatcher.add_handler(CommandHandler('addlesson', addlesson))
     dispatcher.add_handler(CommandHandler('rmlesson', rmlesson))
     dispatcher.add_handler(CommandHandler('checktimetable', checktimetable))
-    dispatcher.add_handler(CommandHandler('help', info))
     dispatcher.add_handler(CommandHandler('auskunft', auskunft))
+    dispatcher.add_handler(CommandHandler('support', support))
     dispatcher.add_handler(CommandHandler('changelogin', changelogin))
     dispatcher.add_handler(CommandHandler('userdata', user_data))
     dispatcher.add_handler(CommandHandler('cleardata', clear_data))
-    dispatcher.add_handler(CommandHandler('support', support))
     dispatcher.add_handler(CommandHandler('answer_sq', answer_support_question))
     dispatcher.add_handler(CommandHandler('test', test))
+    dispatcher.add_handler(CommandHandler('send_emergency_url', send_emergency_url))
     #dispatcher.add_handler(CommandHandler('meineinfos', getRelevant))
-    dispatcher.add_error_handler(error)
 
     from telegram.ext import MessageHandler, Filters
     dispatcher.add_handler(MessageHandler(Filters.text, text))
+
+    dispatcher.add_error_handler(error)
 
     updater.start_polling()
     print("Program is running...")
