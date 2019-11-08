@@ -13,7 +13,7 @@ from telegram.ext import Updater
 import vertretungsplan
 import csv
 
-updater = Updater(token=json.loads(open("general_information.json", encoding="utf-8").read())["token"], use_context=True)
+updater = Updater(token=json.loads(open("general_information.json", "r", encoding="utf-8").read())["token"], use_context=True)
 
 dispatcher = updater.dispatcher
 
@@ -133,10 +133,12 @@ def checktimetable(update, context):
                 #timetable_writer.writerow(weekdays)
 
                 for lesson in range(max([int(subject[2]) for subject in user_info['Stundenplan']])):
-                    timetable_writer.writerow([" / ".join([" ".join([subject[a] for a in range(len(subject)) if not a in [1,2]]) for subject in user_info['Stundenplan'] if subject[1] == wday and int(subject[2]) == lesson+1]) for wday in weekdays])
-            csv_doc = open(str(user_id)+".csv", "rb", encoding='utf-8')
+                    timetable_writer.writerow([" / ".join([" ".join([subject[a] for a in range(len(subject)) if not a in [1, 2, ]]) for subject in user_info['Stundenplan'] if subject[1] == wday and int(subject[2]) == lesson+1]) for wday in weekdays])
+            csv_doc = open(str(user_id)+".csv", "rb")
             print("Read doc")
             context.bot.send_document(chat_id=update.message.chat_id, document=csv_doc)
+            csv_doc.close()
+            os.remove(str(user_id) + ".csv")
         else:
             timetable_txt = ""
             index = 1 # beginne bei 1 mit dem Zählen
@@ -170,7 +172,7 @@ def help(update, context):
         for a in dispatcher.handlers[0]:
             if type(a) == CommandHandler:
                 try:
-                    message = message + "\n/" + a.command[0] + " " + command_description[a.command[0]]
+                    message = message + "\n/" + a.command[0] + " - " + command_description[a.command[0]]
                 except KeyError:
                     if str(update.message.chat_id) in json.loads(open("general_information.json", encoding="utf-8").read())["supporter"]:
                         message = message + "\n/" + a.command[0]
@@ -371,7 +373,7 @@ def status(update, context):
             info = json.loads(open("general_information.json", "r", encoding="utf-8").read())
             info["status_message"] = " ".join(parameters)
             with open("general_information.json", "w", encoding="utf-8") as file:
-                file.write(info)
+                file.write(json.dumps(info))
                 file.close()
     context.bot.send_message(chat_id=update.message.chat_id, text=str(json.loads(open("general_information.json", encoding='utf-8').read())["status_message"]))
 
