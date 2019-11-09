@@ -349,12 +349,40 @@ def send_emergency_url(update, context):
 
 @send_typing_action
 def error(update, context):
+    update_text = ""
+    context_error_text = ""
+    try:
+        update_text = str(update)
+    except:
+        pass
+    try:
+        context_error_text = str(context.error)
+    except:
+        pass
     try:
         """Log Errors caused by Updates."""
         logger.warning('Update "%s" caused error "%s"', update, context.error)
         context.bot.send_message(chat_id=update.message.chat_id, text="Es ist ein Fehler aufgetreten. Bitte versuche es erneut oder kontaktiere den Support mit /support.")
     except Exception as e:
         print(e)
+    data = json.loads(open("general_information.json", encoding="utf-8").read())
+    support_info = data["supporter"]
+    least_clients = min([len(support_info[a]["clients"]) for a in support_info])
+    supporter = ""
+    client = update.message.from_user["id"]
+    for support in support_info:
+        if client in support_info[support]["clients"]:
+            supporter = int(support)
+            break
+    if not supporter:
+        supporter = [a for a in support_info if len(support_info[a]["clients"]) <= least_clients][0]
+        data["supporter"][str(supporter)]["clients"].append(client)
+    with open("general_information.json", "w", encoding="utf-8") as file:
+        data["supporter"] = support_info
+        file.write(json.dumps(data))
+        file.close()
+    error_message = f"Fehler:\n\"{update_text}\" caused:\n\"{context_error_text}\""
+    context.bot.send_message(chat_id=supporter, text=error_message, disable_notification=True)
 
 @send_typing_action
 def report_error(update, context):
