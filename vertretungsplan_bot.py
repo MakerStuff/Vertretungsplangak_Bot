@@ -272,8 +272,9 @@ def changelogin(update, context):
 def user_data(update, context):
     user_id = update.message.from_user['id']
     try:
-        user_info = json.loads(open(path_to_user_data + str(user_id) + ".json", encoding="utf-8").read())
-        context.bot.send_document(chat_id=update.message.chat_id, document=open(f"{user_id}.json", 'rb'))
+        file = path_to_user_data + str(user_id) + ".json"
+        user_info = json.loads(open(file, "r", encoding="utf-8").read())
+        context.bot.send_document(chat_id=update.message.chat_id, document=open(file, 'rb'))
         context.bot.send_message(chat_id=update.message.chat_id, text="Hier sind alle Daten, die dem System über dich bekannt sind.")
     except FileNotFoundError:
         context.bot.send_message(chat_id=update.message.chat_id, text="Es liegen keine Daten zu deiner Nutzer-ID vor. Bitte nutze /addlesson um deinen Stundenplan einzurichten")
