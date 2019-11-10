@@ -409,6 +409,10 @@ def status(update, context):
 def test(update, context):
     raise(Exception("Dieser Fehler ist Absicht!"))
 
+def stop_bot(update, context):
+    if update.message.chat_id in json.loads(open("general_information.json", encoding="utf-8").read())["supporter"]:
+        exit()
+
 print("Hello World!")
 print("Running as " + str(__name__))
 if __name__ == "__main__":
@@ -427,6 +431,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('answer_sq', answer_support_question))
     dispatcher.add_handler(CommandHandler('test', test))
     dispatcher.add_handler(CommandHandler('send_emergency_url', send_emergency_url))
+    dispatcher.add_handler(CommandHandler('stop_bot', stop_bot))
     #dispatcher.add_handler(CommandHandler('meineinfos', getRelevant))
 
     from telegram.ext import MessageHandler, Filters
