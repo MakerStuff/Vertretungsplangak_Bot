@@ -1,7 +1,7 @@
 ﻿import datetime
 import json
 import logging
-import os
+import os, threading
 import time
 from functools import wraps
 
@@ -409,9 +409,13 @@ def status(update, context):
 def test(update, context):
     raise(Exception("Dieser Fehler ist Absicht!"))
 
+def stop(updater):
+    updater.stop()
+    updater.is_idle = False
+
 def stop_bot(update, context):
-    if update.message.chat_id in json.loads(open("general_information.json", encoding="utf-8").read())["supporter"]:
-        exit()
+    if str(update.message.chat_id) in json.loads(open("general_information.json").read())["supporter"]:
+        threading.Thread(target=stop, args=(updater,)).start()
 
 print("Hello World!")
 print("Running as " + str(__name__))
