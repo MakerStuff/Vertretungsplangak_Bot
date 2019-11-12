@@ -110,7 +110,7 @@ def rmlesson(update, context):
     user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
     del user_info['Stundenplan'][int(parameters[0])-1]
     with open(path_to_user_data + str(user_id) + ".json", "w") as file:
-        file.write(str(user_info))
+        file.write(json.loads(user_info))
         file.close()
     context.bot.send_message(chat_id = update.message.chat_id, text = "Dein Stundenplan wurde bearbeitet. Nutze /checktimetable um ihn zu überprüfen.")
 
