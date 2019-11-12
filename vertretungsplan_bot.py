@@ -82,15 +82,17 @@ def addlesson(update, context):
             user_info = {'Benutzername': 'Default',
                          'Passwort': 'Default',
                          'Stundenplan': []}
-        if not len(parameters) == 1:
-            parameters = [a.capitalize() for a in parameters]
-        else:
+        parameters = [a.capitalize() for a in parameters]
+        if len(parameters) == 1:
             parameters[0] = parameters[0].upper()
-        for stunde in parameters[2].split("-"):
             lesson = parameters
-            lesson[2] = stunde
-            user_info['Stundenplan'].append(lesson)
-            user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
+            user_info["Stundenplan"].append(lesson)
+        if len(parameters) != 1:
+            for stunde in parameters[2].split("-"):
+                lesson = parameters
+                lesson[2] = stunde
+                user_info['Stundenplan'].append(lesson)
+        user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
         with open(path_to_user_data + str(user_id) + ".json", "w") as file:
             file.write(json.dumps(user_info))
             file.close()
