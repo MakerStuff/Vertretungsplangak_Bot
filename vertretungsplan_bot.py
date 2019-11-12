@@ -23,7 +23,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-path_to_user_data = "userdata/"
+path_to_sensible_data = "../Vertretungsplangak_Data/"
+path_to_user_data = path_to_sensible_data + "userdata/"
 
 def send_typing_action(func):
     """Sends typing action while processing func command."""
@@ -168,7 +169,7 @@ def createtimetable(update, context):
 
 @send_typing_action
 def help(update, context):
-    command_description = json.loads(open("command_description.json", "r", encoding="utf-8").read())
+    command_description = json.loads(open(path_to_sensible_data + "command_description.json", "r", encoding="utf-8").read())
     if not update.message.text.split(" ")[1:]:
         message = "Die folgenden Befehle stehen zur Verfügung:\n"
         for a in dispatcher.handlers[0]:
@@ -176,7 +177,7 @@ def help(update, context):
                 try:
                     message = message + "\n/" + a.command[0] + " - " + command_description[a.command[0]]
                 except KeyError:
-                    if str(update.message.chat_id) in json.loads(open("general_information.json", encoding="utf-8").read())["supporter"]:
+                    if str(update.message.chat_id) in json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())["supporter"]:
                         message = message + "\n/" + a.command[0]
                     print("Es gibt (noch) keine Erklärung für \"" + a.command[0] + "\"")
     else:
@@ -302,7 +303,7 @@ def aktuell(update, context):
 def support(update, context):
     parameters = update.message.text.split(" ")[1:]
     if parameters and not update.message.from_user["is_bot"]:
-        data = json.loads(open("general_information.json", encoding="utf-8").read())
+        data = json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())
         support_info = data["supporter"]
         least_clients = min([len(support_info[a]["clients"]) for a in support_info])
         supporter = ""
@@ -314,7 +315,7 @@ def support(update, context):
         if not supporter:
             supporter = [a for a in support_info if len(support_info[a]["clients"]) <= least_clients][0]
             data["supporter"][str(supporter)]["clients"].append(client)
-        with open("general_information.json", "w", encoding="utf-8") as file:
+        with open(path_to_sensible_data + "general_information.json", "w", encoding="utf-8") as file:
             data["supporter"] = support_info
             file.write(json.dumps(data))
             file.close()
@@ -325,7 +326,7 @@ def support(update, context):
 
 @send_typing_action
 def answer_support_question(update, context):
-    if str(update.message.chat_id) in json.loads(open("general_information.json", encoding="utf-8").read())["supporter"]:
+    if str(update.message.chat_id) in json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())["supporter"]:
         reply_message = "Du hast eine Antwort vom Support erhalten:\n\n" + " ".join(update.message.text.split(" ")[1:])
         user = update.message.reply_to_message.forward_from
         supporter = update.message.chat_id
@@ -343,10 +344,10 @@ def answer_support_question(update, context):
 @send_typing_action
 def send_emergency_url(update, context):
     parameters = update.message.text.split(" ")[1:]
-    info = json.loads(open("general_information.json", "r", encoding="utf-8").read())
+    info = json.loads(open(path_to_sensible_data + "general_information.json", "r", encoding="utf-8").read())
     if update.message.chat_id in info["supporter"]:
         info["emergency_url"] = parameters[0]
-    with open("general_information.json") as file:
+    with open(path_to_sensible_data + "general_information.json") as file:
         file.write(json.dumps(info))
         file.close()
 
@@ -368,7 +369,7 @@ def error(update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text="Es ist ein Fehler aufgetreten. Bitte versuche es erneut oder kontaktiere den Support mit /support.")
     except Exception as e:
         print(e)
-    data = json.loads(open("general_information.json", encoding="utf-8").read())
+    data = json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())
     support_info = data["supporter"]
     least_clients = min([len(support_info[a]["clients"]) for a in support_info])
     supporter = ""
@@ -380,7 +381,7 @@ def error(update, context):
     if not supporter:
         supporter = [a for a in support_info if len(support_info[a]["clients"]) <= least_clients][0]
         data["supporter"][str(supporter)]["clients"].append(client)
-    with open("general_information.json", "w", encoding="utf-8") as file:
+    with open(path_to_sensible_data + "general_information.json", "w", encoding="utf-8") as file:
         data["supporter"] = support_info
         file.write(json.dumps(data))
         file.close()
@@ -399,14 +400,14 @@ def report_error(update, context):
 def status(update, context):
     # Make it possible for the support to change this message
     parameters = update.message.text.split(" ")[1:]
-    if str(update.message.chat_id) in json.loads(open("general_information.json", encoding="utf-8").read())["supporter"]:
+    if str(update.message.chat_id) in json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())["supporter"]:
         if parameters:
-            info = json.loads(open("general_information.json", "r", encoding="utf-8").read())
+            info = json.loads(open(path_to_sensible_data + "general_information.json", "r", encoding="utf-8").read())
             info["status_message"] = " ".join(parameters)
-            with open("general_information.json", "w", encoding="utf-8") as file:
+            with open(path_to_sensible_data + "general_information.json", "w", encoding="utf-8") as file:
                 file.write(json.dumps(info))
                 file.close()
-    context.bot.send_message(chat_id=update.message.chat_id, text=str(json.loads(open("general_information.json", encoding='utf-8').read())["status_message"]))
+    context.bot.send_message(chat_id=update.message.chat_id, text=str(json.loads(open(path_to_sensible_data + "general_information.json", encoding='utf-8').read())["status_message"]))
 
 @send_typing_action
 def test(update, context):
@@ -417,7 +418,7 @@ def stop(updater):
     updater.is_idle = False
 
 def stop_bot(update, context):
-    if str(update.message.chat_id) in json.loads(open("general_information.json").read())["supporter"]:
+    if str(update.message.chat_id) in json.loads(open(path_to_sensible_data + "general_information.json").read())["supporter"]:
         threading.Thread(target=stop, args=(updater,)).start()
 
 print("Hello World!")
