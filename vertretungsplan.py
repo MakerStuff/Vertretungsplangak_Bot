@@ -1,5 +1,3 @@
-from typing import List, Any
-
 import requests, logging, base64, gzip, json
 from bs4 import BeautifulSoup as bs
 import time, datetime
@@ -20,8 +18,7 @@ wtype = {'A': 0,
          'B': 1,
          'b': 1}
 
-
-def update(username, password, save=True):
+def update(username, password, save=True, location="../Vertretungsplangak_Data/"):
     doc = getDoc(username, password)
     einträge = []
     for a in doc.find_all('center'):
@@ -39,7 +36,7 @@ def update(username, password, save=True):
         except IndexError:
             pass
     if save:
-        with open(f"{username}_buffer.json", "w") as file:
+        with open(location + f"{username}_buffer.json", "w") as file:
             file.write(json.dumps(einträge))
             file.close()
     return (einträge)
@@ -103,7 +100,7 @@ def try_get_url_via_desktop_api(username, password):
     return table_url
 
 # Parameter `tries` says how often to try requesting each API
-def getURL(username, password, tries=10):
+def getURL(username, password, tries=10, location="../Vertretungsplangak_Data/"):
     for i in range(tries):
         try:
             print("Trying login via Desktop API...")
@@ -119,7 +116,7 @@ def getURL(username, password, tries=10):
                 logger.exception("Android login failed, too")
     
     # Try the emergency-url as a last resort
-    general_information_json = json.load(open("general_information.json"))
+    general_information = json.load(open(location + "general_information.json"))
     if "emergency_url" in general_information:
         return general_information["emergency_url"]
     else:
