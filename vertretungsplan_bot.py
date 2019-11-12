@@ -1,7 +1,9 @@
-﻿import datetime
+﻿import csv
+import datetime
 import json
 import logging
-import os, threading
+import os
+import threading
 import time
 from functools import wraps
 
@@ -11,9 +13,11 @@ from telegram import ChatAction, ParseMode
 from telegram.ext import Updater
 
 import vertretungsplan
-import csv
 
-updater = Updater(token=json.loads(open("general_information.json", "r", encoding="utf-8").read())["token"], use_context=True)
+path_to_sensible_data = "../Vertretungsplangak_Data/"
+path_to_user_data = path_to_sensible_data + "userdata/"
+
+updater = Updater(token=json.loads(open(path_to_sensible_data + "general_information.json", "r", encoding="utf-8").read())["token"], use_context=True)
 
 dispatcher = updater.dispatcher
 
@@ -22,9 +26,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-
-path_to_sensible_data = "../Vertretungsplangak_Data/"
-path_to_user_data = path_to_sensible_data + "userdata/"
 
 def send_typing_action(func):
     """Sends typing action while processing func command."""
