@@ -77,34 +77,44 @@ def addlesson(update, context):
         context.bot.send_message(chat_id=user_id, text="Ein Eintrag für eine Stunde muss in einer der folgenden Formen angegeben werden:\n\nGib deine Klasse so an, wie sie auf dem Vertretungsplan angezeigt wird. Beispielsweise:\n05A\n10B\n\n ODER liste folgende Informationen durch ein Leerzeichen getrennt auf:\n - Klasse\n - Wochentag des Kurses (mo, di, mi, do, ...)\n - Stunde (Nur eine Stunde pro Eintrag)\n - Fach (Abgekürzt wie auf dem offiziellen Vertretungsplan)\n - Raum\n - (falls angegeben) Wochentyp (A oder B)\nBeispielsweise:\n/addlesson 05A mo 1 Deu 1.11\n/addlesson 12 mo 3-4 Deu 2.34")
         return
     elif len(parameters) in (1, 5, 6,):
-        try:
-            user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
-        except (FileNotFoundError, SyntaxError):
-            user_info = {'Benutzername': 'Default',
-                         'Passwort': 'Default',
-                         'Stundenplan': []}
         if len(parameters) == 1:
+            try:
+                user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
+            except (FileNotFoundError, SyntaxError):
+                user_info = {'Benutzername': 'Default',
+                             'Passwort': 'Default',
+                             'Stundenplan': []}
             lesson = parameters
             user_info["Stundenplan"].append(lesson)
+            user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
+            with open(path_to_user_data + str(user_id) + ".json", "w") as file:
+                file.write(json.dumps(user_info))
+                file.close()
         if len(parameters) != 1:
             stunden = [int(stunde) for stunde in parameters[2].split("-")]
             for stunde in range(min(stunden), max(stunden)+1):
+                try:
+                    user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
+                except (FileNotFoundError, SyntaxError):
+                    user_info = {'Benutzername': 'Default',
+                                 'Passwort': 'Default',
+                                 'Stundenplan': []}
                 print(user_info['Stundenplan'])
                 lesson = parameters
                 lesson[2] = str(stunde)
                 print("This is the new lesson: " + str(lesson))
                 print(lesson in user_info['Stundenplan'])
                 user_info['Stundenplan'].append(lesson)
+                user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
                 print(user_info['Stundenplan'])
+                with open(path_to_user_data + str(user_id) + ".json", "w") as file:
+                    file.write(json.dumps(user_info))
+                    file.close()
                 message = message + str(lesson) + " wurde erfolgreich deinem Stundenplan hinzugefügt.\n"
         #print("Sorting timetable")
         #print(user_info['Stundenplan'])
-        user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
         #print("Sorted timetable")
         #print(user_info['Stundenplan'])
-        with open(path_to_user_data + str(user_id) + ".json", "w") as file:
-            file.write(json.dumps(user_info))
-            file.close()
         message = message + "\nBitte nutze /checktimetable um deinen aktualisierten Stundenplan zu überprüfen."
         context.bot.send_message(chat_id=update.message.chat_id, text=message)
     else:
