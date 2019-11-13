@@ -8,7 +8,7 @@ Der Bot wurde für das [Gymnasium am Kattenberge](http://www.gak-buchholz.de/) e
 Der Vertretungsplangak_Bot ist selbsterklärend. Der Anfang sollte mit */help* gemacht werden.
 
 # Wo kann ich Hilfe bekommen?
-Für komplizierte Befehle besteht meistens die Möglichkeit, weitere Hilfe anzeigen zu lassen. Hierzu wird folgende Systax benötigt: */<Befehl> help*
+Für komplizierte Befehle besteht meistens die Möglichkeit, weitere Hilfe anzeigen zu lassen. Hierzu wird folgende Systax benötigt: */**Befehl** help*
 Der Bot bietet mit */support* die Möglichkeit, eine Nachricht an den Gruppenchat des Support-Teams zu schreiben.
 
 # Welche Daten werden erhoben?
