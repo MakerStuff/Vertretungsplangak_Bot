@@ -48,29 +48,28 @@ def sort_timetable(timetable):
     sortable_timetable = timetable
     for entry in sortable_timetable:
         try:
-            entry[1] = [vertretungsplan.wday[a] for a in vertretungsplan.wday if a.capitalize() == entry[1].capitalize()][0]
+            entry[1] = [vertretungsplan.wday[a] for a in vertretungsplan.wday if str(a) == str(entry[1])][0]
         except IndexError:
             pass
+    #print("Prepared timetable for sorting.")
+    #print(sortable_timetable)
     sorted_timetable = sorted(sortable_timetable)
+    #print("Sorted timetable.")
     for entry in sorted_timetable:
         try:
-            entry[1] = [a for a in vertretungsplan.wday][entry[1]]
+            entry[1] = [a for a in vertretungsplan.wday if vertretungsplan.wday[a] == entry[1]][0]
         except IndexError:
             pass
-        try:
-            entry[0] = entry[0].upper()
-        except TypeError:
-            pass
+    #print("Corrected timetable back to a more readable format.")
+    #print(sorted_timetable)
     return(sorted_timetable)
 
 @send_typing_action
 def addlesson(update, context):
     user_id = update.message.from_user['id']
-    #print(user_id)
-    #print(update.message.text)
-    parameters = update.message.text.split(" ")[1:]
+    parameters = [parameter.capitalize() for parameter in update.message.text.split(" ")[1:]]
     user_info = {}
-    #print(parameters)
+    message = ""
     if not parameters:
         context.bot.send_message(chat_id = update.message.chat_id, text = "Nutze \"/addlesson help\" um zu lernen, wie du eine Stunde zu deinem Stundenplan hinzufügst.")
         return
@@ -84,21 +83,30 @@ def addlesson(update, context):
             user_info = {'Benutzername': 'Default',
                          'Passwort': 'Default',
                          'Stundenplan': []}
-        parameters = [a.capitalize() for a in parameters]
         if len(parameters) == 1:
-            parameters[0] = parameters[0].upper()
             lesson = parameters
             user_info["Stundenplan"].append(lesson)
         if len(parameters) != 1:
-            for stunde in parameters[2].split("-"):
+            stunden = [int(stunde) for stunde in parameters[2].split("-")]
+            for stunde in range(min(stunden), max(stunden)+1):
+                print(user_info['Stundenplan'])
                 lesson = parameters
-                lesson[2] = stunde
+                lesson[2] = str(stunde)
+                print("This is the new lesson: " + str(lesson))
+                print(lesson in user_info['Stundenplan'])
                 user_info['Stundenplan'].append(lesson)
+                print(user_info['Stundenplan'])
+                message = message + str(lesson) + " wurde erfolgreich deinem Stundenplan hinzugefügt.\n"
+        #print("Sorting timetable")
+        #print(user_info['Stundenplan'])
         user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
+        #print("Sorted timetable")
+        #print(user_info['Stundenplan'])
         with open(path_to_user_data + str(user_id) + ".json", "w") as file:
             file.write(json.dumps(user_info))
             file.close()
-        context.bot.send_message(chat_id = update.message.chat_id, text = str(parameters) + " wurde erfolgreich deinem Stundenplan hinzugefügt.")
+        message = message + "\nBitte nutze /checktimetable um deinen aktualisierten Stundenplan zu überprüfen."
+        context.bot.send_message(chat_id=update.message.chat_id, text=message)
     else:
         context.bot.send_message(chat_id = update.message.chat_id, text = "Unbekanntes Format. Nutze \"/addlesson help\" zur Hilfe.")
 

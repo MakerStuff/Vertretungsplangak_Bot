@@ -26,10 +26,7 @@ def update(username, password, save=True, location="../Vertretungsplangak_Data/"
             datum = a.find_all('div')[0].text.split(" ")[0]
             for b in a.find_all('tr'):
                 if b.text != "":
-                    eintrag = [
-                        c.text.replace(" - ", ", ").replace("-", "").replace("\xa0", "").replace("(", "").replace(")",
-                                                                                                                  "")
-                        for c in b.find_all('td')]
+                    eintrag = [c.text.replace(" - ", ", ").replace("-", "").replace("\xa0", "").replace("(", "").replace(")","").capitalize() for c in b.find_all('td')]
                     eintrag.append(datum)
                     if len(eintrag) == 10:
                         einträge.append(eintrag)
