@@ -6,7 +6,6 @@ import os
 import threading
 import time
 from functools import wraps
-from typing import List, Any
 
 import requests
 from bs4 import BeautifulSoup as bs
@@ -34,20 +33,11 @@ logger = logging.getLogger(__name__)
 
 # indirect functions
 def error(update, context):
-    update_text = ""
     context_error_text = ""
     if isinstance(context.error, NetworkError):
         print("NetworkError -> restarting...")
         threading.Thread(target=stop, args=(updater,)).start()
         return
-    try:
-        update_text = str(update)
-    except:
-        pass
-    try:
-        context_error_text = str(context.error)
-    except:
-        pass
     try:
         """Log Errors caused by Updates."""
         logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -56,7 +46,7 @@ def error(update, context):
     except Exception as e:
         print(e)
     supporter = getSupport()
-    error_message = f"Fehler:\n{update.message.from_user['id']}:\" {update.message.text}\" caused:\n\"{context_error_text}\""
+    error_message = f"Error:\n{update.message.from_user['id']}:\" {update.message.text}\" caused:\n\"{context.error}\""
     context.bot.send_message(chat_id=supporter, text=error_message, disable_notification=True)
 
 
@@ -66,9 +56,9 @@ def getSupport(user_id=None):
     least_clients = min([len(support_info[a]["clients"]) for a in support_info])
     supporter = ""
     client = user_id
-    for support in support_info:
-        if str(client) in support_info[support]["clients"]:
-            supporter = int(support)
+    for sp in support_info:
+        if str(client) in support_info[sp]["clients"]:
+            supporter = int(sp)
             break
     if not supporter:
         supporter = [a for a in support_info if len(support_info[a]["clients"]) <= least_clients][0]
@@ -77,7 +67,7 @@ def getSupport(user_id=None):
         data["supporter"] = support_info
         file.write(json.dumps(data))
         file.close()
-    return (supporter)
+    return supporter
 
 
 def sort_timetable(timetable):
@@ -151,7 +141,6 @@ def text(update, context):
 def add_lesson(update, context):
     user_id = update.message.from_user['id']
     parameters = [parameter.capitalize() for parameter in update.message.text.split(" ")[1:]]
-    user_info = {}
     message = ""
     if not parameters:
         context.bot.send_message(chat_id=update.message.chat_id,
@@ -211,10 +200,10 @@ def add_lesson(update, context):
 def remove_lesson(update, context):
     user_id = update.message.from_user['id']
     parameters = update.message.text.split(" ")[1:]
-    if parameters == []:
+    if not parameters:
         context.bot.send_message(chat_id=update.message.chat_id,
                                  text="Bitte gib die Nummer deines Eintrags an. Du kannst mit /checktimetable sehen, welcher Stunde welche Nummer zugeordnet wurde.")
-        return (None)
+        return
     user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
     del user_info['Stundenplan'][int(parameters[0]) - 1]
     with open(path_to_user_data + str(user_id) + ".json", "w") as file:
@@ -296,7 +285,9 @@ def help(update, context):
                 try:
                     message = message + "\n/" + a.command[0] + " - " + command_description[a.command[0]]
                 except KeyError:
-                    support_list = json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())["supporter"]
+                    support_list = \
+                        json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())[
+                            "supporter"]
                     if str(update.message.chat_id) == support_list:
                         message = message + "\n/" + a.command[0]
                     print("Es gibt (noch) keine Erklärung für \"" + a.command[0] + "\"")
@@ -315,7 +306,7 @@ def information(update, context):
     reply = ""
     default_iterations = 3
     max_iterations = 7
-    if parameters == []:
+    if not parameters:
         parameters = [default_iterations]
     try:
         parameters[0] = int(parameters[0])
@@ -342,8 +333,8 @@ def information(update, context):
             password = [a.text.split(" ")[-1] for a in doc.find_all('strong') if "Passwort: " in a.text][0]
 
         message = ""
-        for a in vertretungsplan.getNews(username, password):
-            message = message + "\n" + a[0] + ": " + a[1]
+        for b in vertretungsplan.getNews(username, password):
+            message = message + "\n" + b[0] + ": " + b[1]
         if message != "":
             reply = reply + "Nachrichten zum Tag:" + message + "\n\n"
 
@@ -407,7 +398,6 @@ def user_data(update, context):
     user_id = update.message.from_user['id']
     try:
         file = path_to_user_data + str(user_id) + ".json"
-        user_info = json.loads(open(file, "r", encoding="utf-8").read())
         context.bot.send_document(chat_id=update.message.chat_id, document=open(file, 'rb'))
         context.bot.send_message(chat_id=update.message.chat_id,
                                  text="Hier sind alle Daten, die dem System über dich bekannt sind.")
