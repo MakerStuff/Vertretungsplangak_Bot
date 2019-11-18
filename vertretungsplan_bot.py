@@ -32,6 +32,57 @@ logger = logging.getLogger(__name__)
 
 
 # indirect functions
+def read_file(filename, path=path_to_sensible_data):
+    try:
+        return json.loads(open(path + filename, "r", encoding="utf-8").read())
+    except FileNotFoundError as e:
+        if filename.endswith(".json"):
+            return dict()
+        elif filename.endswith(".txt"):
+            return ""
+        else:
+            raise e
+
+
+def write_file(filename, content, path=path_to_sensible_data):
+    assert filename, "No filename given"
+    assert "." in filename, "Missing \".\" in filename"
+    assert not filename.endswith("."), f"{filename} cannot end with \".\""
+    if filename.endswith(".json"):
+        assert type(content) == dict, "Content of .json file cannot be other than dict"
+    if filename.endswith(".txt"):
+        assert type(content) == str, "Content of .txt file cannot be other than string"
+    if type(content) == dict:
+        with open(path + filename, "w", encoding="utf-8") as file:
+            file.write(json.dumps(content))
+            file.close()
+    elif type(content) == str:
+        with open(path + filename, "w", encoding="utf-8") as file:
+            file.write(content)
+            file.close()
+    return True
+
+
+def get_command_description(command, detail="short"):
+    try:
+        command_description = read_file("command_description.json")
+        try:
+            try:
+                command = command_description[command]
+                try:
+                    return command[detail]
+                except KeyError:
+                    print(f"{detail} description for {command} does not exist.")
+                    return
+            except KeyError:
+                print(f"{command} does not exist.")
+                return
+        except KeyError:
+            return
+    except FileNotFoundError:
+        return
+
+
 def error(update, context):
     context_error_text = ""
     if isinstance(context.error, NetworkError):
@@ -50,8 +101,26 @@ def error(update, context):
     context.bot.send_message(chat_id=supporter, text=error_message, disable_notification=True)
 
 
+def detailed_help(command):
+    def detailed_help(func):
+        """Calls the help text for a function"""
+
+        @wraps(func)
+        def command_func(update, context, *args, **kwargs):
+            command = update.message.text.split(" ")[0].replace("/", "")
+            parameters = update.message.text.split(" ")[1:]
+            if len(parameters) >= 1 and parameters[0] == "help":
+                command_description = get_command_description(command, detail="long")
+                message = "Nähere Beschreibung zu /" + command + ":\n" + str(command_description)
+                context.bot.send_message(chat_id=update.message.chat_id, text=message)
+                return
+            return func(update, context, *args, **kwargs)
+
+        return command_func
+
+
 def getSupport(user_id=None):
-    data = json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())
+    data = read_file("general_information.json")
     support_info = data["supporter"]
     least_clients = min([len(support_info[a]["clients"]) for a in support_info])
     supporter = ""
@@ -140,15 +209,16 @@ def text(update, context):
 @send_typing_action
 def add_lesson(update, context):
     user_id = update.message.from_user['id']
-    parameters = [parameter.capitalize() for parameter in update.message.text.split(" ")[1:]]
+    parameters = update.message.text.split(" ")[1:]
     message = ""
+    if "help" in parameters:
+        context.bot.send_message(chat_id=user_id,
+                                 text="Ein Eintrag für eine Stunde muss in einer der folgenden Formen angegeben werden:\n\nGib deine Klasse so an, wie sie auf dem Vertretungsplan angezeigt wird. Beispielsweise:\n05A\n10B\n\n ODER liste folgende Informationen durch ein Leerzeichen getrennt auf:\n - Klasse\n - Wochentag des Kurses (mo, di, mi, do, ...)\n - Stunde (Nur eine Stunde pro Eintrag)\n - Fach (Abgekürzt wie auf dem offiziellen Vertretungsplan)\n - Raum\n - (falls angegeben) Wochentyp (A oder B)\nBeispielsweise:\n/addlesson 05A mo 1 Deu 1.11\n/addlesson 12 mo 3-4 Deu 2.34")
+        return
+    parameters = [parameter.capitalize() for parameter in update.message.text.split(" ")[1:]]
     if not parameters:
         context.bot.send_message(chat_id=update.message.chat_id,
                                  text="Nutze \"/addlesson help\" um zu lernen, wie du eine Stunde zu deinem Stundenplan hinzufügst.")
-        return
-    if parameters == ['help']:
-        context.bot.send_message(chat_id=user_id,
-                                 text="Ein Eintrag für eine Stunde muss in einer der folgenden Formen angegeben werden:\n\nGib deine Klasse so an, wie sie auf dem Vertretungsplan angezeigt wird. Beispielsweise:\n05A\n10B\n\n ODER liste folgende Informationen durch ein Leerzeichen getrennt auf:\n - Klasse\n - Wochentag des Kurses (mo, di, mi, do, ...)\n - Stunde (Nur eine Stunde pro Eintrag)\n - Fach (Abgekürzt wie auf dem offiziellen Vertretungsplan)\n - Raum\n - (falls angegeben) Wochentyp (A oder B)\nBeispielsweise:\n/addlesson 05A mo 1 Deu 1.11\n/addlesson 12 mo 3-4 Deu 2.34")
         return
     elif len(parameters) in (1, 5, 6,):
         if len(parameters) == 1:
