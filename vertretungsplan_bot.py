@@ -63,28 +63,27 @@ def write_file(filename, content, path=path_to_sensible_data):
     return True
 
 
-def get_command_description(command, detail="short"):
+def get_command_description(context, command, detail="short"):
+    command_description = read_file("command_description.json")
     try:
-        command_description = read_file("command_description.json")
         try:
-            try:
-                command = command_description[command]
-                try:
-                    return command[detail]
-                except KeyError:
-                    print(f"{detail} description for {command} does not exist.")
-                    return
-            except KeyError:
-                print(f"{command} does not exist.")
-                return
+            short = command_description[command]
         except KeyError:
-            return
-    except FileNotFoundError:
-        return
+            raise KeyError(f"{command} does not exist.")
+        # CHECK for type (str/dict) and make dict {"short": "desc", "long": "desc"}
+        # for compatibility with older versions
+        if type(short) == str:
+            command_description[command] = {"short": short, "long": ""}
+            write_file("command_description.json", command_description)
+        try:
+            return command_description[command][detail]
+        except KeyError:
+            raise KeyError(f"{detail} description for {command} does not exist.")
+    except KeyError as e:
+        context.bot.send_message(chat_id=get_support(), text=str(e), disable_notification=True)
 
 
 def error(update, context):
-    context_error_text = ""
     if isinstance(context.error, NetworkError):
         print("NetworkError -> restarting...")
         threading.Thread(target=stop, args=(updater,)).start()
@@ -96,30 +95,12 @@ def error(update, context):
                                  text="Es ist ein Fehler aufgetreten. Bitte versuche es erneut oder kontaktiere den Support mit /support.")
     except Exception as e:
         print(e)
-    supporter = getSupport()
+    supporter = get_support()
     error_message = f"Error:\n{update.message.from_user['id']}:\" {update.message.text}\" caused:\n\"{context.error}\""
     context.bot.send_message(chat_id=supporter, text=error_message, disable_notification=True)
 
 
-def detailed_help(command):
-    def detailed_help(func):
-        """Calls the help text for a function"""
-
-        @wraps(func)
-        def command_func(update, context, *args, **kwargs):
-            command = update.message.text.split(" ")[0].replace("/", "")
-            parameters = update.message.text.split(" ")[1:]
-            if len(parameters) >= 1 and parameters[0] == "help":
-                command_description = get_command_description(command, detail="long")
-                message = "Nähere Beschreibung zu /" + command + ":\n" + str(command_description)
-                context.bot.send_message(chat_id=update.message.chat_id, text=message)
-                return
-            return func(update, context, *args, **kwargs)
-
-        return command_func
-
-
-def getSupport(user_id=None):
+def get_support(user_id=None):
     data = read_file("general_information.json")
     support_info = data["supporter"]
     least_clients = min([len(support_info[a]["clients"]) for a in support_info])
@@ -132,10 +113,8 @@ def getSupport(user_id=None):
     if not supporter:
         supporter = [a for a in support_info if len(support_info[a]["clients"]) <= least_clients][0]
         data["supporter"][str(supporter)]["clients"].append(client)
-    with open(path_to_sensible_data + "general_information.json", "w", encoding="utf-8") as file:
-        data["supporter"] = support_info
-        file.write(json.dumps(data))
-        file.close()
+    data["supporter"] = support_info
+    write_file("general_information.json", data)
     return supporter
 
 
@@ -177,12 +156,29 @@ def send_typing_action(func):
     return command_func
 
 
+def detailed_help(func):
+    """Calls the help text for a function"""
+
+    @wraps(func)
+    def command_func(update, context, *args, **kwargs):
+        command = update.message.text.split(" ")[0].replace("/", "")
+        parameters = update.message.text.split(" ")[1:]
+        if len(parameters) >= 1 and parameters[0] == "help":
+            command_description = get_command_description(context, command, detail="long")
+            message = "Nähere Beschreibung zu /" + command + ":\n" + str(command_description)
+            context.bot.send_message(chat_id=update.message.chat_id, text=message)
+            return
+        return func(update, context, *args, **kwargs)
+
+    return command_func
+
+
 def support_only(func):
     """Restrict access to certain functions."""
 
     @wraps(func)
     def command_func(update, context, *args, **kwargs):
-        info = json.loads(open(path_to_sensible_data + "general_information.json", "r", encoding="utf-8").read())
+        info = read_file("general_information.json")
         if str(update.message.chat_id) in info["supporter"]:
             print(f"Granted access to {func} for {update.message.from_user}")
             return func(update, context, *args, **kwargs)
@@ -356,7 +352,7 @@ def help(update, context):
                     message = message + "\n/" + a.command[0] + " - " + command_description[a.command[0]]
                 except KeyError:
                     support_list = \
-                        json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())[
+                        read_file("general_information.json")[
                             "supporter"]
                     if str(update.message.chat_id) == support_list:
                         message = message + "\n/" + a.command[0]
@@ -501,7 +497,7 @@ def relevant(update, context):
 def support(update, context):
     parameters = update.message.text.split(" ")[1:]
     if parameters and not update.message.from_user["is_bot"]:
-        supporter = getSupport(update.message.from_user['id'])
+        supporter = get_support(update.message.from_user['id'])
         meta = str(update.message.chat_id)
         problem = " ".join(parameters)
         context.bot.forward_message(chat_id=supporter, from_chat_id=update.message.chat_id,
@@ -516,13 +512,11 @@ def status(update, context):
     # Make it possible for the support to change this message
     parameters = update.message.text.split(" ")[1:]
     if str(update.message.chat_id) in \
-            json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())["supporter"]:
+            read_file("general_information.json")["supporter"]:
         if parameters:
-            info = json.loads(open(path_to_sensible_data + "general_information.json", "r", encoding="utf-8").read())
+            info = read_file("general_information.json")
             info["status_message"] = " ".join(parameters)
-            with open(path_to_sensible_data + "general_information.json", "w", encoding="utf-8") as file:
-                file.write(json.dumps(info))
-                file.close()
+            write_file("general_information.json", info)
     context.bot.send_message(chat_id=update.message.chat_id, text=str(
         json.loads(open(path_to_sensible_data + "general_information.json", encoding='utf-8').read())[
             "status_message"]))
@@ -532,8 +526,7 @@ def status(update, context):
 @support_only
 @send_typing_action
 def answer_support_question(update, context):
-    if str(update.message.chat_id) in \
-            json.loads(open(path_to_sensible_data + "general_information.json", encoding="utf-8").read())["supporter"]:
+    if str(update.message.chat_id) in read_file("general_information.json")["supporter"]:
         reply_message = "Du hast eine Antwort vom Support erhalten:\n\n" + " ".join(update.message.text.split(" ")[1:])
         user = update.message.reply_to_message.forward_from
         supporter = update.message.chat_id
@@ -554,7 +547,7 @@ def answer_support_question(update, context):
 @send_typing_action
 def send_emergency_url(update, context):
     parameters = update.message.text.split(" ")[1:]
-    info = json.loads(open(path_to_sensible_data + "general_information.json", "r", encoding="utf-8").read())
+    info = read_file("general_information.json")
     if update.message.chat_id in info["supporter"]:
         info["emergency_url"] = parameters[0]
     with open(path_to_sensible_data + "general_information.json") as file:
@@ -566,6 +559,20 @@ def send_emergency_url(update, context):
 @send_typing_action
 def test(update, context):
     raise (Exception("Dieser Fehler ist Absicht!"))
+
+
+@support_only
+@send_typing_action
+def set_command_description(update, context):
+    command_description = read_file("command_description.json")
+    parameters = update.message.text.split(" ")[1:]
+    command = parameters[0]
+    detail = parameters[1]
+    description = " ".join(parameters[2:])
+    command_description[command][detail] = description
+    write_file("command_description.json", command_description)
+    context.bot.send_message(chat_id=update.message.chat_id,
+                             text=f"{detail} description of {command} has been changed to {description}")
 
 
 @support_only
