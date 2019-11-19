@@ -63,24 +63,24 @@ def write_file(filename, content, path=path_to_sensible_data):
     return True
 
 
-def get_command_description(context, command, detail="short"):
+def get_command_description(command, detail="short"):
     command_description = read_file("command_description.json")
     try:
         try:
             short = command_description[command]
+            # CHECK for type (str/dict) and make dict {"short": "desc", "long": "desc"}
+            # for compatibility with older versions
+            if type(short) == str:
+                command_description[command] = {"short": short, "long": ""}
+                write_file("command_description.json", command_description)
         except KeyError:
-            raise KeyError(f"{command} does not exist.")
-        # CHECK for type (str/dict) and make dict {"short": "desc", "long": "desc"}
-        # for compatibility with older versions
-        if type(short) == str:
-            command_description[command] = {"short": short, "long": ""}
-            write_file("command_description.json", command_description)
+            raise KeyError(f"Description for {command} does not exist.")
         try:
             return command_description[command][detail]
         except KeyError:
             raise KeyError(f"{detail} description for {command} does not exist.")
     except KeyError as e:
-        context.bot.send_message(chat_id=get_support(), text=str(e), disable_notification=True)
+        return get_command_description("unspecific", "missing_command_description")
 
 
 def error(update, context):
@@ -106,16 +106,22 @@ def get_support(user_id=None):
     least_clients = min([len(support_info[a]["clients"]) for a in support_info])
     supporter = ""
     client = user_id
-    for sp in support_info:
-        if str(client) in support_info[sp]["clients"]:
-            supporter = int(sp)
-            break
-    if not supporter:
-        supporter = [a for a in support_info if len(support_info[a]["clients"]) <= least_clients][0]
-        data["supporter"][str(supporter)]["clients"].append(client)
+    if str(client) in support_info:
+        return client
+    else:
+        for sp in support_info:
+            if client in support_info[sp]["clients"]:
+                supporter = sp
+                break
+        if not supporter:
+            supporter = [a for a in support_info if len(support_info[a]["clients"]) <= least_clients][0]
     data["supporter"] = support_info
     write_file("general_information.json", data)
     return supporter
+
+
+def is_support(chat_id):
+    return chat_id == get_support(chat_id)
 
 
 def sort_timetable(timetable):
@@ -161,12 +167,13 @@ def detailed_help(func):
 
     @wraps(func)
     def command_func(update, context, *args, **kwargs):
-        command = update.message.text.split(" ")[0].replace("/", "")
         parameters = update.message.text.split(" ")[1:]
-        if len(parameters) >= 1 and parameters[0] == "help":
-            command_description = get_command_description(context, command, detail="long")
-            message = "Nähere Beschreibung zu /" + command + ":\n" + str(command_description)
-            context.bot.send_message(chat_id=update.message.chat_id, text=message)
+        if parameters == ["help"]:
+            command = update.message.text.split(" ")[0].replace("/", "")
+            command_description = get_command_description(command, detail="long")
+            if not get_command_description(command, detail="short").startswith("support_only") or is_support(update.message.chat_id):
+                message = "Nähere Beschreibung zu /" + command + ":\n" + str(command_description)
+                context.bot.send_message(chat_id=update.message.chat_id, text=message)
             return
         return func(update, context, *args, **kwargs)
 
@@ -189,12 +196,14 @@ def support_only(func):
 
 
 # user commands
+@detailed_help
 @send_typing_action
 def start(update, context):
     context.bot.send_message(chat_id=update.message.chat_id,
-                             text="Nutze mich, um die den Vertretungsplan deiner Schule vereinfacht darzustellen. Der Autor des Bots übernimmt keine Haftung für die Richtigkeit der Daten.\nDieser Bot wurde programmiert um den Vertretungsplan des Gymnasiums am Kattenberge auszulesen. Andere Schulen funktionieren möglicherweise nicht.\n\nNutze \"/addlesson help\" um zu lernen, wie du deinen Stundenplan erstellen kannst, oder /help für eine Übersicht über alle Befehle.")
+                             text=get_command_description("start", "long"))
 
 
+@detailed_help
 @send_typing_action
 def text(update, context):
     if update.message.chat.type == "private":
@@ -202,6 +211,7 @@ def text(update, context):
                                  text="Ich kann \"" + update.message.text + "\" nicht verstehen. Nutze /help, um eine Übersicht über die Befehle anzeigen zu lassen.")
 
 
+@detailed_help
 @send_typing_action
 def add_lesson(update, context):
     user_id = update.message.from_user['id']
@@ -262,6 +272,7 @@ def add_lesson(update, context):
                                  text="Unbekanntes Format. Nutze \"/addlesson help\" zur Hilfe.")
 
 
+@detailed_help
 @send_typing_action
 def remove_lesson(update, context):
     user_id = update.message.from_user['id']
@@ -279,6 +290,7 @@ def remove_lesson(update, context):
                              text="Dein Stundenplan wurde bearbeitet. Nutze /checktimetable um ihn zu überprüfen.")
 
 
+@detailed_help
 @send_typing_action
 def check_timetable(update, context):
     user_id = update.message.from_user['id']
@@ -326,6 +338,7 @@ def check_timetable(update, context):
                                  text="Ich kann keine Daten zu deinem Stundenplan finden. Nutze \"addlesson help\" um zu lernen, wie du deinen Stundenplan erstellen kannst.")
 
 
+@detailed_help
 @send_typing_action
 def create_timetable(update, context):
     # Dieser Befehl erlaubt es dem Nutzer, den eigenen Stundenplan mit einer CSV-Datei zu ersetzen
@@ -340,31 +353,40 @@ def create_timetable(update, context):
         print(doc)
 
 
+@detailed_help
 @send_typing_action
 def help(update, context):
-    command_description = json.loads(
-        open(path_to_sensible_data + "command_description.json", "r", encoding="utf-8").read())
     if not update.message.text.split(" ")[1:]:
-        message = "Die folgenden Befehle stehen zur Verfügung:\n"
+        message = get_command_description("help", "long") + "\n"
         for a in dispatcher.handlers[0]:
             if type(a) == CommandHandler:
                 try:
-                    message = message + "\n/" + a.command[0] + " - " + command_description[a.command[0]]
+                    command = a.command[0]
+                    desc = get_command_description(a.command[0], "short")
+                    if desc == get_command_description("unspecific", "missing_command_description"):
+                        notification = f"Short description for {command} equals missing_command_description."
+                        context.bot.send_message(chat_id=get_support(), text=notification)
+                    if not desc.startswith("support_only") or is_support(update.message.chat_id):
+                        message = message + "\n/" + command + " - " + desc
                 except KeyError:
-                    support_list = \
-                        read_file("general_information.json")[
-                            "supporter"]
+                    support_list = read_file("general_information.json")["supporter"]
                     if str(update.message.chat_id) == support_list:
                         message = message + "\n/" + a.command[0]
                     print("Es gibt (noch) keine Erklärung für \"" + a.command[0] + "\"")
     else:
-        message = "Hier sind Details zu den gefragten Befehlen:\n"
+        topic = "Hier sind Details zu den gefragten Befehlen:\n"
+        message = topic
         for command in update.message.text.split(" ")[1:]:
             if command in [a.command[0] for a in dispatcher.handlers[0] if type(a) == CommandHandler]:
-                message = message + "\n/" + command + " " + command_description[command]
+                if (not get_command_description(command=command, detail="short").startswith("support_only")
+                        or is_support(update.message.chat_id)):
+                    message = message + "\n/" + command + " " + get_command_description(command, "long")
+        if message == topic:
+            message = message + "Der gefragte Befehl ist nicht verfügbar."
     context.bot.send_message(chat_id=update.message.chat_id, text=message)
 
 
+@detailed_help
 @send_typing_action
 def information(update, context):
     user_id = update.message.from_user['id']
@@ -442,6 +464,7 @@ def information(update, context):
         break
 
 
+@detailed_help
 @send_typing_action
 def change_login(update, context):
     user_id = update.message.from_user['id']
@@ -459,6 +482,7 @@ def change_login(update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text="Überprüfe bitte die Syntax deiner Angaben.")
 
 
+@detailed_help
 @send_typing_action
 def user_data(update, context):
     user_id = update.message.from_user['id']
@@ -472,6 +496,7 @@ def user_data(update, context):
                                  text="Es liegen keine Daten zu deiner Nutzer-ID vor. Bitte nutze /addlesson um deinen Stundenplan einzurichten")
 
 
+@detailed_help
 @send_typing_action
 def clear_data(update, context):
     user_id = update.message.from_user['id']
@@ -485,14 +510,16 @@ def clear_data(update, context):
         context.bot.send_message(chat_id=update.message.chat_id, text="Deine Daten wurden erfolgreich gelöscht.")
 
 
+@detailed_help
 @send_typing_action
 def relevant(update, context):
-    # Diese Funktion seigt die Unterrichtsstunden an, die heute und morgen für den Nutzer interessant sind.
+    # TODO Diese Funktion seigt die Unterrichtsstunden an, die heute und morgen für den Nutzer interessant sind.
     # Hierzu muss der gesamte Stundenplan hinterlegt sein.
     context.bot.send_message(chat_id=update.message.chat_id,
                              text="Diese Funktion befindet sich derzeit im Aufbau und steht nicht zur Verfügung.")
 
 
+@detailed_help
 @send_typing_action
 def support(update, context):
     parameters = update.message.text.split(" ")[1:]
@@ -507,6 +534,7 @@ def support(update, context):
                                  text="Dein Anliegen wurde an deinen Supporter gesendet. Bitte nimm zur Kenntnis, dass dieses Projekt freiwillig betrieben wird und wir manchmal auch keine Zeit haben, um direkt zu antworten.")
 
 
+@detailed_help
 @send_typing_action
 def status(update, context):
     # Make it possible for the support to change this message
@@ -520,29 +548,29 @@ def status(update, context):
     context.bot.send_message(chat_id=update.message.chat_id, text=str(
         json.loads(open(path_to_sensible_data + "general_information.json", encoding='utf-8').read())[
             "status_message"]))
+    # TODO Add broadcast with none, silent and normal option. Default is silent.
 
 
 # Support only commands
+@detailed_help
 @support_only
 @send_typing_action
 def answer_support_question(update, context):
-    if str(update.message.chat_id) in read_file("general_information.json")["supporter"]:
-        reply_message = "Du hast eine Antwort vom Support erhalten:\n\n" + " ".join(update.message.text.split(" ")[1:])
-        user = update.message.reply_to_message.forward_from
-        supporter = update.message.chat_id
-        if reply_message:
-            original_message = update.message.reply_to_message
-            print(original_message)
-            context.bot.send_message(chat_id=user["id"], text=reply_message)
-            success_message = "Die Antwort wurde erfolgreich an " + str(user) + " gesendet."
-            context.bot.send_message(chat_id=supporter, text=success_message)
-        else:
-            context.bot.send_message(chat_id=supporter,
-                                     text="Die Nachricht muss Text enthalten.\n/answer_sq <Antwort-Text>")
+    reply_message = "Du hast eine Antwort vom Support erhalten:\n\n" + " ".join(update.message.text.split(" ")[1:])
+    user = update.message.reply_to_message.forward_from
+    supporter = update.message.chat_id
+    if update.message.text.split(" ")[1:]:
+        original_message = update.message.reply_to_message
+        print(original_message)
+        context.bot.send_message(chat_id=user["id"], text=reply_message)
+        success_message = "Die Antwort wurde erfolgreich an " + str(user) + " gesendet."
+        context.bot.send_message(chat_id=supporter, text=success_message)
     else:
-        print(f"Unautorisierter Zugriff auf answer_service_qestion durch {update.message.from_user}")
+        context.bot.send_message(chat_id=supporter,
+                                 text="Die Nachricht muss Text enthalten.\n/answer_sq <Antwort-Text>")
 
 
+@detailed_help
 @support_only
 @send_typing_action
 def send_emergency_url(update, context):
@@ -555,12 +583,14 @@ def send_emergency_url(update, context):
         file.close()
 
 
+@detailed_help
 @support_only
 @send_typing_action
 def test(update, context):
     raise (Exception("Dieser Fehler ist Absicht!"))
 
 
+@detailed_help
 @support_only
 @send_typing_action
 def set_command_description(update, context):
@@ -569,12 +599,16 @@ def set_command_description(update, context):
     command = parameters[0]
     detail = parameters[1]
     description = " ".join(parameters[2:])
-    command_description[command][detail] = description
+    try:
+        command_description[command][detail] = description
+    except KeyError as e:
+        command_description[command] = {detail: description}
     write_file("command_description.json", command_description)
     context.bot.send_message(chat_id=update.message.chat_id,
                              text=f"{detail} description of {command} has been changed to {description}")
 
 
+@detailed_help
 @support_only
 @send_typing_action
 def stop_bot(update, context):
@@ -602,7 +636,8 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('test', test))
     dispatcher.add_handler(CommandHandler('send_emergency_url', send_emergency_url))
     dispatcher.add_handler(CommandHandler('stop_bot', stop_bot))
-    # dispatcher.add_handler(CommandHandler('meineinfos', getRelevant))
+    dispatcher.add_handler(CommandHandler('set_command_description', set_command_description))
+    # dispatcher.add_handler(CommandHandler('relevant', getRelevant))
 
     from telegram.ext import MessageHandler, Filters
 
