@@ -632,6 +632,15 @@ def handle_document(update, context):
         pass
 
 
+@support_only
+@send_typing_action
+def get_file(update, context):
+    parameters = update.message.text.split(" ")[1:]
+    assert not parameters[0].startswith(".."), "Path must not begin with .."
+    file = path_to_sensible_data + parameters[0]
+    context.bot.send_document(chat_id=update.message.chat_id, document=open(file, 'rb'))
+
+
 print("Hello World!")
 print("Running as " + str(__name__))
 if __name__ == "__main__":
@@ -653,6 +662,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('send_emergency_url', send_emergency_url))
     dispatcher.add_handler(CommandHandler('stop_bot', stop_bot))
     dispatcher.add_handler(CommandHandler('set_command_description', set_command_description))
+    dispatcher.add_handler(CommandHandler('get_file', get_file))
     # dispatcher.add_handler(CommandHandler('relevant', getRelevant))
 
     from telegram.ext import MessageHandler, CallbackQueryHandler, Filters
