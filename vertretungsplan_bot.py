@@ -170,7 +170,6 @@ def detailed_help(func):
         parameters = []
         if update.message.text:
             parameters = update.message.text.split(" ")[1:]
-        print("Gathering parameters")
         if parameters == ["help"]:
             command = update.message.text.split(" ")[0].replace("/", "")
             command_description = get_command_description(command, detail="long")
