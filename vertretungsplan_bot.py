@@ -167,7 +167,10 @@ def detailed_help(func):
 
     @wraps(func)
     def command_func(update, context, *args, **kwargs):
-        parameters = update.message.text.split(" ")[1:]
+        parameters = []
+        if update.message.text:
+            parameters = update.message.text.split(" ")[1:]
+        print("Gathering parameters")
         if parameters == ["help"]:
             command = update.message.text.split(" ")[0].replace("/", "")
             command_description = get_command_description(command, detail="long")
@@ -344,10 +347,6 @@ def create_timetable(update, context):
     # Dieser Befehl erlaubt es dem Nutzer, den eigenen Stundenplan mit einer CSV-Datei zu ersetzen
     user_id = update.message.from_user["id"]
     parameters = update.message.text.split(" ")[1:]
-    if "help" in parameters:
-        context.bot.send_message(chat_id=update.message.chat_id,
-                                 text="Wenn du dir unsicher bist, wie deine CSV-Tabelle aussehen soll, erstelle einige Einträge mit /addlesson und sieh dir die Datei mit \"/checktimetable csv\" an.")
-        return
     if update.message.document:
         doc = update.message.document
         print(doc)
@@ -372,7 +371,7 @@ def help(update, context):
                     support_list = read_file("general_information.json")["supporter"]
                     if str(update.message.chat_id) == support_list:
                         message = message + "\n/" + a.command[0]
-                    print("Es gibt (noch) keine Erklärung für \"" + a.command[0] + "\"")
+                    print("Missing description for \"" + a.command[0] + "\"")
     else:
         topic = "Hier sind Details zu den gefragten Befehlen:\n"
         message = topic
@@ -586,13 +585,6 @@ def send_emergency_url(update, context):
 @detailed_help
 @support_only
 @send_typing_action
-def test(update, context):
-    raise (Exception("Dieser Fehler ist Absicht!"))
-
-
-@detailed_help
-@support_only
-@send_typing_action
 def set_command_description(update, context):
     command_description = read_file("command_description.json")
     parameters = update.message.text.split(" ")[1:]
@@ -614,6 +606,31 @@ def set_command_description(update, context):
 def stop_bot(update, context):
     context.bot.send_message(chat_id=update.message.chat_id, text="Stopping bot", disable_notification=True)
     threading.Thread(target=stop, args=(updater,)).start()
+
+
+@detailed_help
+@support_only
+@send_typing_action
+def test(update, context):
+    print("test")
+    raise (Exception("Dieser Fehler ist Absicht!"))
+
+
+@detailed_help
+def handle_document(update, context):
+    file = update.message.document
+    file_id = file.file_id
+    try:
+        assert file.file_name.endswith(".json")
+        assert is_support(update.message.chat_id)
+        assert update.message.caption == "store"
+        content = json.loads(requests.get(context.bot.get_file(file_id).to_dict()["file_path"]).text)
+        write_file(file.file_name, content)
+        context.bot.send_message(chat_id=update.message.chat_id, text=f"Stored {file.file_name}")
+        return
+    except AssertionError as e:
+        print(e)
+        pass
 
 
 print("Hello World!")
@@ -639,9 +656,10 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('set_command_description', set_command_description))
     # dispatcher.add_handler(CommandHandler('relevant', getRelevant))
 
-    from telegram.ext import MessageHandler, Filters
+    from telegram.ext import MessageHandler, CallbackQueryHandler, Filters
 
     dispatcher.add_handler(MessageHandler(Filters.text, text))
+    dispatcher.add_handler(MessageHandler(Filters.document, handle_document))
 
     dispatcher.add_error_handler(error)
 
