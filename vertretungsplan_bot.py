@@ -96,7 +96,8 @@ def error(update, context):
     except Exception as e:
         print(e)
     supporter = get_support()
-    error_message = f"Error:\n{update.message.from_user['id']}:\" {update.message.text}\" caused:\n\"{context.error}\""
+    document = update.message.document.file_name
+    error_message = f"Error:\n{update.message.from_user['id']}:\" {update.message.text}\" " + document * bool(document) + f" caused:\n\"{context.error}\""
     context.bot.send_message(chat_id=supporter, text=error_message, disable_notification=True)
 
 
@@ -620,15 +621,15 @@ def handle_document(update, context):
     file = update.message.document
     file_id = file.file_id
     try:
-        assert file.file_name.endswith(".json")
-        assert is_support(update.message.chat_id)
-        assert update.message.caption == "store"
+        assert file.file_name.endswith(".json"), "File format is not .json"
+        assert is_support(update.message.chat_id), "Chat is not support"
+        assert update.message.caption == "store", "No store command"
         content = json.loads(requests.get(context.bot.get_file(file_id).to_dict()["file_path"]).text)
         write_file(file.file_name, content)
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Stored {file.file_name}")
         return
     except AssertionError as e:
-        print(e)
+        raise e
         pass
 
 
