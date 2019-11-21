@@ -33,8 +33,15 @@ logger = logging.getLogger(__name__)
 
 # indirect functions
 def read_file(filename, path=path_to_sensible_data):
+    print(f"Call to read {path + filename}")
     try:
-        return json.loads(open(path + filename, "r", encoding="utf-8").read())
+        content = open(path + filename, "r", encoding="utf-8").read()
+        if filename.endswith(".json"):
+            return json.loads(content)
+        if filename.endswith(".txt"):
+            return str(content)
+        else:
+            return content
     except FileNotFoundError as e:
         if filename.endswith(".json"):
             return dict()
@@ -45,6 +52,7 @@ def read_file(filename, path=path_to_sensible_data):
 
 
 def write_file(filename, content, path=path_to_sensible_data):
+    print(f"Call to write {content} to {path + filename}")
     assert filename, "No filename given"
     assert "." in filename, "Missing \".\" in filename"
     assert not filename.endswith("."), f"{filename} cannot end with \".\""
@@ -64,6 +72,7 @@ def write_file(filename, content, path=path_to_sensible_data):
 
 
 def get_command_description(command, detail="short"):
+    print(f"Asking for {detail} description for {command} command")
     command_description = read_file("command_description.json")
     try:
         try:
@@ -97,7 +106,9 @@ def error(update, context):
         print(e)
     supporter = get_support()
     document = update.message.document.file_name
-    error_message = f"Error:\n{update.message.from_user['id']}:\" {update.message.text}\" " + document * bool(document) + f" caused:\n\"{context.error}\""
+    error_message = f"Error:\n{update.message.from_user['id']}:\" {update.message.text}\" " + document * bool(
+        document) + f" caused:\n\"{context.error}\""
+    print(error_message)
     context.bot.send_message(chat_id=supporter, text=error_message, disable_notification=True)
 
 
@@ -111,13 +122,17 @@ def get_support(user_id=None):
         return client
     else:
         for sp in support_info:
+            support_info[sp]["clients"] = [c for c in support_info[sp]["clients"] if not c in ("None", None)]
             if client in support_info[sp]["clients"]:
                 supporter = sp
                 break
         if not supporter:
             supporter = [a for a in support_info if len(support_info[a]["clients"]) <= least_clients][0]
+            if user_id is not None:
+                support_info[supporter]["clients"].append(user_id)
     data["supporter"] = support_info
     write_file("general_information.json", data)
+    print(f"Support for {user_id} is {supporter}")
     return supporter
 
 
@@ -174,7 +189,8 @@ def detailed_help(func):
         if parameters == ["help"]:
             command = update.message.text.split(" ")[0].replace("/", "")
             command_description = get_command_description(command, detail="long")
-            if not get_command_description(command, detail="short").startswith("support_only") or is_support(update.message.chat_id):
+            if not get_command_description(command, detail="short").startswith("support_only") or is_support(
+                    update.message.chat_id):
                 message = "Nähere Beschreibung zu /" + command + ":\n" + str(command_description)
                 context.bot.send_message(chat_id=update.message.chat_id, text=message)
             return
