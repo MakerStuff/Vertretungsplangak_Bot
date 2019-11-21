@@ -370,7 +370,7 @@ def create_timetable(update, context):
 
 @detailed_help
 @send_typing_action
-def help(update, context):
+def help_text(update, context):
     if not update.message.text.split(" ")[1:]:
         message = get_command_description("help", "long") + "\n"
         for a in dispatcher.handlers[0]:
@@ -663,7 +663,7 @@ print("Running as " + str(__name__))
 if __name__ == "__main__":
     from telegram.ext import CommandHandler
 
-    dispatcher.add_handler(CommandHandler('help', help))
+    dispatcher.add_handler(CommandHandler('help', help_text))
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('status', status))
     dispatcher.add_handler(CommandHandler('addlesson', add_lesson))
