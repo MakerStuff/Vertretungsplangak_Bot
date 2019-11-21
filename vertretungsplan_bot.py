@@ -184,8 +184,11 @@ def detailed_help(func):
     @wraps(func)
     def command_func(update, context, *args, **kwargs):
         parameters = []
-        if update.message.text:
-            parameters = update.message.text.split(" ")[1:]
+        try:
+            if update.message.text:
+                parameters = update.message.text.split(" ")[1:]
+        except Exception as e:
+            print(e)
         if parameters == ["help"]:
             command = update.message.text.split(" ")[0].replace("/", "")
             command_description = get_command_description(command, detail="long")
