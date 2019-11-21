@@ -89,7 +89,10 @@ def get_command_description(command, detail="short"):
         except KeyError:
             raise KeyError(f"{detail} description for {command} does not exist.")
     except KeyError as e:
-        return get_command_description("unspecific", "missing_command_description")
+        try:
+            return command_description["unspecific"]["missing_command_description"]
+        except:
+            return "There is no error message available yet"
 
 
 def error(update, context):
