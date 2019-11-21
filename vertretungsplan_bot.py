@@ -100,6 +100,7 @@ def error(update, context):
         print("NetworkError -> restarting...")
         threading.Thread(target=stop, args=(updater,)).start()
         return
+    print(context.error)
     try:
         """Log Errors caused by Updates."""
         logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -108,7 +109,11 @@ def error(update, context):
     except Exception as e:
         print(e)
     supporter = get_support()
-    document = update.message.document.file_name
+    document = ""
+    try:
+        document = update.message.document.file_name
+    except AttributeError:
+        pass
     error_message = f"Error:\n{update.message.from_user['id']}:\" {update.message.text}\" " + document * bool(
         document) + f" caused:\n\"{context.error}\""
     print(error_message)
