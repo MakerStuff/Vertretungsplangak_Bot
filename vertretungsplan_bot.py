@@ -705,7 +705,7 @@ def command(update, context):
         pass
     else:
         print("Getting results")
-        results = command_to_function[user_command](update, context)
+        results = command_to_function[user_command](update, context).copy()
         print(f"results: {results}")
         for chat_id in results:
             relevant_keys = {"text",
