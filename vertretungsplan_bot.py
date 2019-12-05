@@ -441,7 +441,6 @@ def information(update, context):
     for a in range(int(parameters[0])):
         try:
             user_info = json.loads(open(path_to_user_data + str(user_id) + ".json", encoding="utf-8").read())
-            user_info = json.loads(open("../Vertretungsplangak_Data/userdata/201176580.json").read())
         except FileNotFoundError:
             output[str(update.message.chat_id)] = {"text": "Ich habe keine Informationen über dich gespeichert. Bitte trage deinen Stundenplan mit /addlesson ein, damit ich dir helfen kann."}
             return output
