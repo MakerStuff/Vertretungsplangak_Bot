@@ -702,6 +702,7 @@ def command(update, context):
     assert update.message.text.startswith("/"), "Message is not a command!"
     user_command = update.message.text.split(" ")[0].split("@")[0].lstrip("/")
     print(f"command is {user_command}")
+    results: {}
     if not user_command:
         pass
     else:
