@@ -1,7 +1,13 @@
-import requests, logging, base64, gzip, json
-from bs4 import BeautifulSoup as bs
-import time, datetime
+import datetime
 import json
+import time
+
+import base64
+import gzip
+import logging
+import requests
+from bs4 import BeautifulSoup as bs
+
 import dsbapi
 
 logger = logging.getLogger()
@@ -18,32 +24,69 @@ wtype = {'A': 0,
          'B': 1,
          'b': 1}
 
-def update(username, password, save=True, location="../Vertretungsplangak_Data/"):
+
+def vertretungsplan(username, password, save=True, location="../Vertretungsplangak_Data/"):
     doc = getDoc(username, password)
     einträge = []
-    for a in doc.find_all('center'):
+    print(f"Checking {len(doc.find_all('center'))} times center")
+    for center in doc.find_all('center'):
         try:
-            datum = a.find_all('div')[0].text.split(" ")[0]
-            for b in a.find_all('tr'):
-                if b.text != "":
-                    eintrag = [c.text.replace(" - ", ", ").replace("-", "").replace("\xa0", "").replace("(", "").replace(")","").capitalize() for c in b.find_all('td')]
-                    eintrag.append(datum)
-                    if len(eintrag) == 10:
-                        einträge.append(eintrag)
-        except IndexError:
+            print("Checking center")
+            header = ["" for i in range(10)]
+            now = time.gmtime(time.time())
+            datum = f"{now.tm_mday}.{now.tm_mon}.{now.tm_year}"
+            try:
+                datum = center.find_all('div')[0].text.split(" ")[0]
+            except IndexError:
+                pass
+            print(datum)
+            '''
+            try:
+                
+                header_line = center.find_all('p')[0].find_all('table')[0].find_all('tr')[0]
+                header = []
+                for th in header_line.find_all('th'):
+                    header.append(th.text.title())
+                header.append(datum)
+                print(f"\tHeader: {header}")
+                assert len(header) == len(header_line.find_all('th')) + 1
+            except AttributeError as e:
+                print(e)
+            '''
+
+            table = center.find_all('table')[-1]
+            print("\tFound table")
+            print(f"\tChecking {len(table.find_all('tr')[1:])} times tr")
+            for tr in center.find_all('table')[-1].find_all('tr'):
+                if len(tr.find_all('th')) == 0 and len(tr.find_all('td')) == len(header)-1:
+                    if tr.text != "":
+                        eintrag = [c.text.strip(" *-*(\xa0)*(*)*").title() for c in tr.find_all('td')]
+                        eintrag.append(datum)
+                        for stunde in eintrag[1].replace(" ", "").split("-"):
+                            eintrag[1] = stunde
+                            print(f"Eintrag: {eintrag}")
+                            assert len(eintrag) == len(header)
+                            einträge.append(eintrag.copy())
+                    else:
+                        print("Table is empty")
+        except IndexError as e:
+            print(e)
+            pass
+        except AttributeError as e:
+            print(e)
             pass
     if save:
         with open(location + f"{username}_buffer.json", "w") as file:
             file.write(json.dumps(einträge))
             file.close()
-    return (einträge)
+    return einträge
 
 
 def getDoc(username, password):
     url = getURL(username, password)
     if url == '':
         raise (ValueError("No URL given."))
-    return (bs(requests.get(url).text, "html.parser"))
+    return bs(requests.get(url).text, "html.parser")
 
 
 def try_get_url_via_desktop_api(username, password):
@@ -64,7 +107,8 @@ def try_get_url_via_desktop_api(username, password):
               "__EVENTTARGET", "__EVENTARGUMENT", "__EVENTVALIDATION"]
     for field in fields:
         element = page.find(id=field)
-        if not element is None: data[field] = element.get("value")
+        if element is not None:
+            data[field] = element.get("value")
 
     session.post(LOGIN_URL, data)
 
@@ -96,6 +140,7 @@ def try_get_url_via_desktop_api(username, password):
     table_url = data["ResultMenuItems"][0]["Childs"][2]["Root"]["Childs"][0]["Childs"][0]["Detail"]
     return table_url
 
+
 # Parameter `tries` says how often to try requesting each API
 def getURL(username, password, tries=10, location="../Vertretungsplangak_Data/"):
     for i in range(tries):
@@ -103,12 +148,12 @@ def getURL(username, password, tries=10, location="../Vertretungsplangak_Data/")
             print("Trying login via Desktop API...")
             table_url = try_get_url_via_desktop_api(username, password)
             print(table_url)
-            return(table_url)
+            return table_url
         except Exception as e_desktop:
             logger.exception("Login/GetData via Desktop API failed, trying Android API...")
             try:
                 myDSB = dsbapi.DSBApi(username, password)
-                return(myDSB.fetch_entries())
+                return myDSB.fetch_entries()
             except Exception as e_android:
                 logger.exception("Android login failed, too")
     
@@ -119,8 +164,10 @@ def getURL(username, password, tries=10, location="../Vertretungsplangak_Data/")
     else:
         raise Exception(f"No login method worked properly after {tries} tries")
 
-def getNews(username, password):
-    doc = getDoc(username, password)
+
+def getNews(username, password, doc=None):
+    if not doc:
+        doc = getDoc(username, password)
     information = []
     for a in doc.find_all('td'):
         try:
@@ -130,16 +177,23 @@ def getNews(username, password):
                     information.append(info)
         except KeyError:
             pass
-    return (information)
+    return information
 
 
-def getRelevants(kursliste, username, password, level=0):
-    # doc = bs(doc, 'html.parser')
-    einträge = update(username, password)
+def getRelevants(kursliste, username=None, password=None, vertretungs_plan=[], level=0):
+    assert kursliste, "Keine Kursliste verfügbar"
+    assert (username and password) or vertretungs_plan, "Neither login credentials nor vertretungsplan available."
+    if not vertretungs_plan:
+        einträge = vertretungsplan(username, password)
+    else:
+        einträge = vertretungs_plan
     relevante_einträge = []
     eintrag: []
+    print(f"Einträge({len(einträge)}): {einträge}")
     for eintrag in einträge:
         for kurs in kursliste:
+            for a in kurs:
+                a = a.title()
             try:
                 if len(kurs) == 1:
                     if eintrag[0] == kurs[0]:
@@ -150,7 +204,7 @@ def getRelevants(kursliste, username, password, level=0):
                         match[0] = True
                     # else:
                     #    continue
-                    if wday[kurs[1].capitalize()] == time.gmtime(datetime.datetime.strptime(eintrag[9],
+                    if wday[kurs[1]] == time.gmtime(datetime.datetime.strptime(eintrag[9],
                                                                                             '%d.%m.%Y').timestamp() - time.altzone).tm_wday:  # week day
                         match[1] = True
                     if kurs[2] in eintrag[1]:  # lesson
@@ -171,7 +225,7 @@ def getRelevants(kursliste, username, password, level=0):
                 pass
     # for a in relevante_einträge:
     # print(a[9] + ": " + a[1] + ", " + a[2] + " --> " + a[7])
-    return (relevante_einträge)
+    return relevante_einträge
 
 
 if __name__ == "__main__":
@@ -188,8 +242,8 @@ if __name__ == "__main__":
             print(a[0] + ": " + a[1])
         print()
         try:
-            kursliste = eval(open("kursliste.txt").read())
-            for eintrag in getRelevants(kursliste, username, password, 5):
+            kursliste = json.loads(open("../Vertretungsplangak_Data/userdata/201176580.json").read())["Stundenplan"]
+            for eintrag in getRelevants(kursliste, username, password, level=5):
                 # 0: Klasse
                 # 1: Stunde
                 # 2: Fach

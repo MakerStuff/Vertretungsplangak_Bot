@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Vertretungsplangak_Bot.iml" filepath="$PROJECT_DIR$/.idea/Vertretungsplangak_Bot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Vertretungsplangak_Data/.idea/Vertretungsplangak_Data.iml" filepath="$PROJECT_DIR$/../Vertretungsplangak_Data/.idea/Vertretungsplangak_Data.iml" />
     </modules>
   </component>
 </project>
