@@ -180,7 +180,11 @@ def getNews(username, password, doc=None):
     return information
 
 
-def getRelevants(kursliste, username=None, password=None, vertretungs_plan=[], level=0):
+def getRelevants(kursliste: object,
+                 username: object = None,
+                 password: object = None,
+                 vertretungs_plan: object = [],
+                 level: object = 0) -> object:
     assert kursliste, "Keine Kursliste verfügbar"
     assert (username and password) or vertretungs_plan, "Neither login credentials nor vertretungsplan available."
     if not vertretungs_plan:
@@ -196,16 +200,15 @@ def getRelevants(kursliste, username=None, password=None, vertretungs_plan=[], l
                 a = a.title()
             try:
                 if len(kurs) == 1:
-                    if eintrag[0] == kurs[0]:
+                    if eintrag[0].lstrip("0").title() == kurs[0].lstrip("0").title():
                         relevante_einträge.append(eintrag)
                 else:
                     match = [False for a in range(6)]
-                    if kurs[0] in eintrag[0]:  # class
+                    if kurs[0].lstrip("0").title() in eintrag[0].lstrip("0").title():  # class
                         match[0] = True
                     # else:
                     #    continue
-                    if wday[kurs[1]] == time.gmtime(datetime.datetime.strptime(eintrag[9],
-                                                                                            '%d.%m.%Y').timestamp() - time.altzone).tm_wday:  # week day
+                    if wday[kurs[1]] == time.gmtime(datetime.datetime.strptime(eintrag[9], '%d.%m.%Y').timestamp() - time.altzone).tm_wday:  # week day
                         match[1] = True
                     if kurs[2] in eintrag[1]:  # lesson
                         match[2] = True
