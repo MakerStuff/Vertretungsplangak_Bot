@@ -86,7 +86,10 @@ def getDoc(username, password):
     url = getURL(username, password)
     if url == '':
         raise (ValueError("No URL given."))
-    return bs(requests.get(url).text, "html.parser")
+    doc = bs(requests.get(url).text, "html.parser")
+    assert "Untis" in doc.text, "\"Untis\" not in doc.text"
+    assert "Stand: " in doc.text, "\"Stand: \" not in doc.text"
+    return doc
 
 
 def try_get_url_via_desktop_api(username, password):
