@@ -18,13 +18,6 @@ import vertretungsplan
 path_to_sensible_data = "../Vertretungsplangak_Data/"
 path_to_user_data = path_to_sensible_data + "userdata/"
 
-updater = Updater(
-    token=json.loads(open(path_to_sensible_data + "general_information.json", "r", encoding="utf-8").read())["token"],
-    use_context=True)
-command_to_function = {}
-
-dispatcher = updater.dispatcher
-
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -44,12 +37,7 @@ def read_file(filename, path=path_to_sensible_data):
         else:
             return content
     except FileNotFoundError as e:
-        if filename.endswith(".json"):
-            return dict()
-        elif filename.endswith(".txt"):
-            return ""
-        else:
-            raise e
+        return write_file(filename, path=path, content=None)
 
 
 def write_file(filename, content, path=path_to_sensible_data):
@@ -57,19 +45,17 @@ def write_file(filename, content, path=path_to_sensible_data):
     assert filename, "No filename given"
     assert "." in filename, "Missing \".\" in filename"
     assert not filename.endswith("."), f"{filename} cannot end with \".\""
-    if filename.endswith(".json"):
-        assert type(content) == dict, "Content of .json file cannot be other than dict"
-    if filename.endswith(".txt"):
-        assert type(content) == str, "Content of .txt file cannot be other than string"
-    if type(content) == dict:
-        with open(path + filename, "w", encoding="utf-8") as file:
-            file.write(json.dumps(content))
-            file.close()
-    elif type(content) == str:
-        with open(path + filename, "w", encoding="utf-8") as file:
-            file.write(content)
-            file.close()
-    return True
+    file_ending = filename.split(".")[-1]
+    conv = {"json": (dict, json.dumps(content)),
+            "txt": (str, str(content))}
+    if content is None:
+        content = conv[file_ending][0]()
+    assert type(content) == conv[file_ending][0], \
+        f"Content of .{file_ending} file must be {conv[file_ending][0]} instead of {type(content)}"
+    with open(path + filename, "w", encoding="utf-8") as file:
+        file.write(conv[file_ending][1])
+        file.close()
+    return content
 
 
 def get_command_description(command, detail="short"):
@@ -331,7 +317,7 @@ def check_timetable(update=None, context=None, user_id=None):
     parameters = update.message.text.split(" ")[1:]
     try:
         user_info = json.loads(open(path_to_user_data + str(user_id) + ".json", encoding="utf-8").read())
-        if "sort" in parameters:
+        if "sort" in parameters or "fix" in parameters:
             print("Sorting")
             user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
             print("Sorted")
@@ -482,7 +468,7 @@ def information(update=None, context=None, user_id=None):
                           2] + " in Raum " * bool(len(eintrag[4])) + eintrag[4] + ". Beschreibung: " * bool(
                 len(eintrag[8])) + eintrag[8] + ". Vertretung von " * bool(len(eintrag[6])) + eintrag[6]
         if message != "":
-            reply = reply + "Für dich relevante Einträge:" + message + "\n\n"
+            reply = reply + f"{len(relevants)} für dich relevante Einträge:" + message + "\n\n"
         else:
             reply = reply + "Aktuell liegen keine Einträge für dich vor." + "\n\n"
 
@@ -744,7 +730,12 @@ def callback(update=None, context=None, user_id=None):
         update.message.reply_text("Antwort konnte nicht verarbeitet werden")
 
 
+updater = Updater(
+    token=read_file("general_information.json")["token"],
+    use_context=True)
+command_to_function = {}
 
+dispatcher = updater.dispatcher
 
 command_to_function = {"auskunft": information,
                        "help": help_text,
