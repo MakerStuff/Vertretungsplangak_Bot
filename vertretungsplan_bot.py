@@ -556,11 +556,10 @@ def clear_data(update=None, context=None, user_id=None):
 @detailed_help
 @send_typing_action
 def relevant(update=None, context=None, user_id=None):
-    output = {}
-    # TODO Diese Funktion seigt die Unterrichtsstunden an, die heute und morgen für den Nutzer interessant sind.
+    output = {str(update.message.chat_id): {
+        "text": "Diese Funktion befindet sich derzeit im Aufbau und steht nicht zur Verfügung."}}
+    # TODO Diese Funktion zeigt die Unterrichtsstunden an, die heute und morgen für den Nutzer interessant sind.
     # Hierzu muss der gesamte Stundenplan hinterlegt sein.
-    output[str(update.message.chat_id)] = {
-        "text": "Diese Funktion befindet sich derzeit im Aufbau und steht nicht zur Verfügung."}
     return output
 
 
@@ -657,7 +656,7 @@ def set_command_description(update=None, context=None, user_id=None):
 @support_only
 @send_typing_action
 def stop_bot(update=None, context=None, user_id=None):
-    output = {}
+    output = dict()
     output[str(update.message.chat_id)] = {"text": "Stopping bot", "disable_notification": True}
     threading.Thread(target=stop, args=(updater,)).start()
     return output
