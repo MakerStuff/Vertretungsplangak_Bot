@@ -84,17 +84,21 @@ def vertretungsplan(username, password, save=True, location="../Vertretungsplang
 
 def getDoc(username, password):
     url = getURL(username, password)
-    if url == '':
-        raise (ValueError("No URL given."))
+    print(f"This is the url to be checked: {url}")
+    assert url, "No URL given."
     doc = bs(requests.get(url).text, "html.parser")
-    assert "Untis" in doc.text, "\"Untis\" not in doc.text"
-    assert "Stand: " in doc.text, "\"Stand: \" not in doc.text"
+    try:
+        assert "Untis" in doc.text, "\"Untis\" not in doc.text"
+        assert "Stand: " in doc.text, "\"Stand: \" not in doc.text"
+    except AssertionError as e:
+        print(f"Content is not correct: {doc.text} <- End of content.")
+        raise e
     return doc
 
 
 def try_get_url_via_desktop_api(username, password):
     LOGIN_URL = "https://www.dsbmobile.de/Login.aspx"
-    DATA_URL = "https://www.dsbmobile.de/jhw-ecd92528-a4b9-425f-89ee-c7038c72b9a6.ashx/GetData"
+    DATA_URL = "https://www.dsbmobile.de/jhw-1fd98248-440c-4283-bef6-dc82fe769b61.ashx/GetData"
     
     session = requests.Session()
 
@@ -140,12 +144,12 @@ def try_get_url_via_desktop_api(username, password):
     data_compressed = json.loads(r.content)["d"]
     data = json.loads(gzip.decompress(base64.b64decode(data_compressed)))
 
-    table_url = data["ResultMenuItems"][0]["Childs"][2]["Root"]["Childs"][0]["Childs"][0]["Detail"]
+    table_url = data["ResultMenuItems"][0]["Childs"][1]["Root"]["Childs"][0]["Childs"][0]["Detail"]
     return table_url
 
 
 # Parameter `tries` says how often to try requesting each API
-def getURL(username, password, tries=10, location="../Vertretungsplangak_Data/"):
+def getURL(username, password, tries=5, location="../Vertretungsplangak_Data/"):
     for i in range(tries):
         try:
             print("Trying login via Desktop API...")

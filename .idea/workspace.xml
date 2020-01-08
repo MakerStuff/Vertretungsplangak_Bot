@@ -4,16 +4,40 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e7811e6-04a7-4eb1-8931-e8254e1c8891" name="Default Changelist" comment="">
+    <list default="true" id="3e7811e6-04a7-4eb1-8931-e8254e1c8891" name="Default Changelist" comment="Fix changed url and json syntax">
+      <change beforePath="$PROJECT_DIR$/.idea/Vertretungsplangak_Bot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Vertretungsplangak_Bot.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vertretungsplan.py" beforeDir="false" afterPath="$PROJECT_DIR$/vertretungsplan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vertretungsplan_bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/vertretungsplan_bot.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="Git.Rebase.Settings">
+    <option name="ONTO" value="refs/remotes/origin/master" />
+  </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="f1b9c5595b7e053c659cda22437efb37900524fe" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GithubProjectSettings">
+    <option name="CREATE_PULL_REQUEST_DEFAULT_BRANCH" value="master" />
+    <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_USER" value="MakerStuff" />
+    <option name="CREATE_PULL_REQUEST_DEFAULT_REPO_NAME" value="Vertretungsplangak_Bot" />
+  </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="hiddenUrls">
+      <set>
+        <option value="https://github.com/MakerStuff/Vertretungsplangak_Bot" />
+      </set>
+    </option>
   </component>
   <component name="ProjectId" id="1TONRUlSapAyKbT0OB9OF0vwuSu" />
   <component name="ProjectViewState">
@@ -24,9 +48,10 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Vertretungsplangak_Data" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyDependenciesConfigurable" />
+    <property name="settings.editor.splitter.proportion" value="0.34411764" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -80,6 +105,8 @@
       <list>
         <item itemvalue="Python.vertretungsplan_bot" />
         <item itemvalue="Python.vertretungsplan" />
+        <item itemvalue="Python.vertretungsplan_bot" />
+        <item itemvalue="Python.vertretungsplan" />
       </list>
     </recent_temporary>
   </component>
@@ -113,7 +140,14 @@
       <option name="project" value="LOCAL" />
       <updated>1576600670364</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added number of entries to the beginning of a message">
+      <created>1576600763043</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1576600763043</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -131,48 +165,65 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added number of entries to the beginning of a message" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added number of entries to the beginning of a message" />
+    <MESSAGE value="Fix changed url and json syntax" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix changed url and json syntax" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="98" y="58" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1576763445854">
+      <screen x="0" y="28" width="1280" height="744" />
+    </state>
+    <state x="98" y="58" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.28.1280.744@0.28.1280.744" timestamp="1576763445854" />
     <state x="314" y="28" width="644" height="743" key="#vertretungsplan_bot" timestamp="1576267241324">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="314" y="28" width="644" height="743" key="#vertretungsplan_bot/0.28.1280.744@0.28.1280.744" timestamp="1576267241324" />
-    <state x="217" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1576600669922">
+    <state x="217" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1578473795779">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="217" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1576600669922" />
+    <state x="217" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1578473795779" />
     <state x="119" y="87" width="1026" height="624" key="DiffContextDialog" timestamp="1576600586175">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="119" y="87" width="1026" height="624" key="DiffContextDialog/0.28.1280.744@0.28.1280.744" timestamp="1576600586175" />
-    <state x="423" y="158" width="426" height="483" key="FileChooserDialogImpl" timestamp="1576600156284">
+    <state x="423" y="158" width="426" height="483" key="FileChooserDialogImpl" timestamp="1578324270167">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="423" y="158" width="426" height="483" key="FileChooserDialogImpl/0.28.1280.744@0.28.1280.744" timestamp="1576600156284" />
-    <state width="1255" height="170" key="GridCell.Tab.0.bottom" timestamp="1576600439282">
+    <state x="423" y="158" width="426" height="483" key="FileChooserDialogImpl/0.28.1280.744@0.28.1280.744" timestamp="1578324270167" />
+    <state x="326" y="269" width="619" height="261" key="Github.CreatePullRequestDialog" timestamp="1578481085947">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1255" height="170" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1576600439282" />
-    <state width="1255" height="170" key="GridCell.Tab.0.center" timestamp="1576600439281">
+    <state x="326" y="269" width="619" height="261" key="Github.CreatePullRequestDialog/0.28.1280.744@0.28.1280.744" timestamp="1578481085947" />
+    <state width="1257" height="170" key="GridCell.Tab.0.bottom" timestamp="1578473795841">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1255" height="170" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1576600439281" />
-    <state width="1255" height="170" key="GridCell.Tab.0.left" timestamp="1576600439280">
+    <state width="1257" height="170" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1578473795841" />
+    <state width="1257" height="170" key="GridCell.Tab.0.center" timestamp="1578473795841">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1255" height="170" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1576600439280" />
-    <state width="1255" height="170" key="GridCell.Tab.0.right" timestamp="1576600439281">
+    <state width="1257" height="170" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1578473795841" />
+    <state width="1257" height="170" key="GridCell.Tab.0.left" timestamp="1578473795840">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1255" height="170" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1576600439281" />
-    <state x="129" y="35" key="SettingsEditor" timestamp="1576269234207">
+    <state width="1257" height="170" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1578473795840" />
+    <state width="1257" height="170" key="GridCell.Tab.0.right" timestamp="1578473795841">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="129" y="35" key="SettingsEditor/0.28.1280.744@0.28.1280.744" timestamp="1576269234207" />
+    <state width="1257" height="170" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1578473795841" />
+    <state x="129" y="35" key="SettingsEditor" timestamp="1578324236380">
+      <screen x="0" y="28" width="1280" height="744" />
+    </state>
+    <state x="129" y="35" key="SettingsEditor/0.28.1280.744@0.28.1280.744" timestamp="1578324236380" />
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1576600893335">
+      <screen x="0" y="28" width="1280" height="744" />
+    </state>
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1576600893335" />
     <state x="296" y="227" key="com.intellij.ide.util.TipDialog" timestamp="1576267027858">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="296" y="227" key="com.intellij.ide.util.TipDialog/0.28.1280.744@0.28.1280.744" timestamp="1576267027858" />
+    <state x="300" y="268" width="672" height="264" key="git4idea.rebase.GitRebaseDialog" timestamp="1578473267267">
+      <screen x="0" y="28" width="1280" height="744" />
+    </state>
+    <state x="300" y="268" width="672" height="264" key="git4idea.rebase.GitRebaseDialog/0.28.1280.744@0.28.1280.744" timestamp="1578473267267" />
   </component>
 </project>
