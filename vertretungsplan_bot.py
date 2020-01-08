@@ -102,11 +102,12 @@ def error(update=None, context=None, user_id=None):
         document = update.message.document.file_name
     except AttributeError:
         pass
-    error_message = f"Error:\n{update.message.from_user['id']}:\" {update.message.text}\" " + document * bool(
-        document) + f" caused:\n\"{context.error}\""
-    print(error_message)
-    context.bot.send_message(chat_id=supporter, text=error_message, disable_notification=True)
-    return {}
+    if not "no-error-message" in update.message.text:
+        error_message = f"Error:\n{update.message.from_user['id']}:\" {update.message.text}\" " + document * bool(
+            document) + f" caused:\n\"{context.error}\""
+        print(error_message)
+        context.bot.send_message(chat_id=supporter, text=error_message, disable_notification=True)
+    return output
 
 
 def get_support(user_id=None):
