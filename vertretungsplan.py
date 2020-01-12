@@ -88,18 +88,19 @@ def getDoc(username, password):
     assert url, "No URL given."
     doc = bs(requests.get(url).text, "html.parser")
     try:
-        assert "Untis" in doc.text, "\"Untis\" not in doc.text"
-        assert "Stand: " in doc.text, "\"Stand: \" not in doc.text"
+        assert "Untis" in doc.text, f"\"Untis\" not in doc.text"
+        assert "Stand: " in doc.text, f"\"Stand: \" not in doc.text"
     except AssertionError as e:
-        print(f"Content is not correct: {doc.text} <- End of content.")
+        print(f"Content is not correct: Content ->{doc.text}<- End of content.")
         raise e
     return doc
 
 
 def try_get_url_via_desktop_api(username, password):
     LOGIN_URL = "https://www.dsbmobile.de/Login.aspx"
+    # DATA_URL = "https://www.dsbmobile.de/jhw-1fd98248-440c-4283-bef6-dc82fe769b61.ashx/GetData"
     DATA_URL = "https://www.dsbmobile.de/jhw-1fd98248-440c-4283-bef6-dc82fe769b61.ashx/GetData"
-    
+
     session = requests.Session()
 
     r = session.get(LOGIN_URL)
