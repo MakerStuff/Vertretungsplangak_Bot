@@ -81,7 +81,6 @@ def vertretungsplan(username, password, save=True, location="../Vertretungsplang
             file.close()
     return einträge
 
-
 def getDoc(username, password):
     url = getURL(username, password)
     print(f"This is the url to be checked: {url}")
@@ -100,9 +99,14 @@ def getURL(username, password, tries=5, location="../Vertretungsplangak_Data/"):
     for i in range(tries):
         try:
             index = dsbapi.fetch_index(logger)
-            print(json.dumps(index, indent=2))
-            table_url = index["ResultMenuItems"][0]["Childs"][1]["Root"]["Childs"][0]["Childs"][0]["Detail"]
-            return table_url
+            
+            # Iterate through the three content tabs and find the plan-tab
+            for tab in index["ResultMenuItems"][0]["Childs"]:
+                if tab["Title"] == "Pl\u00e4ne":
+                    table_url = tab["Root"]["Childs"][0]["Childs"][0]["Detail"]
+                    return table_url
+            
+            raise Exception("Couldn't find relevant data in index")
         except Exception as e:
             logger.exception(e)
     # If we arrive at this point, the API's don't work.
