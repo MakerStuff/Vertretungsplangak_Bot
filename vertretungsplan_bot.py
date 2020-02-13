@@ -7,6 +7,8 @@ import threading
 import time
 from functools import wraps
 
+import tests
+
 import requests
 from bs4 import BeautifulSoup as bs
 from telegram import ChatAction, ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
@@ -84,30 +86,33 @@ def get_command_description(command, detail="short"):
 
 def error(update=None, context=None, user_id=None):
     output = {}
-    if isinstance(context.error, NetworkError):
-        print("NetworkError -> restarting...")
-        threading.Thread(target=stop, args=(updater,)).start()
-        return
-    print(context.error)
     try:
-        """Log Errors caused by Updates."""
-        logger.warning('Update "%s" caused error "%s"', update, context.error)
-        context.bot.send_message(chat_id=update.message.chat_id,
-                                 text="Es ist ein Fehler aufgetreten. Bitte versuche es erneut oder kontaktiere den Support mit /support.")
+        if isinstance(context.error, NetworkError):
+            print("NetworkError -> restarting...")
+            threading.Thread(target=stop, args=(updater,)).start()
+            return
+        print(context.error)
+        try:
+            """Log Errors caused by Updates."""
+            logger.warning('Update "%s" caused error "%s"', update, context.error)
+            output[str(update.message.chat_id)] = {"text": "Es ist ein Fehler aufgetreten. Bitte versuche es erneut oder kontaktiere den Support mit /support."}
+        except Exception as e:
+            print(e)
+        supporter = get_support()
+        document = ""
+        try:
+            document = update.message.document.file_name
+        except AttributeError:
+            pass
     except Exception as e:
-        print(e)
-    supporter = get_support()
-    document = ""
-    try:
-        document = update.message.document.file_name
-    except AttributeError:
         pass
-    if not "no-error-message" in update.message.text:
-        error_message = f"Error:\n{update.message.from_user['id']}:\" {update.message.text}\" " + document * bool(
-            document) + f" caused:\n\"{context.error}\""
-        print(error_message)
-        context.bot.send_message(chat_id=supporter, text=error_message, disable_notification=True)
-    return output
+    finally:
+        if not "no-error-message" in update.message.text:
+            error_message = f"Error:\n{update.message.chat_id}:\" {update.message.text}\" " + document * bool(
+                document) + f" caused:\n\"{context.error}\""
+            print(error_message)
+            context.bot.send_message(chat_id=supporter, text=error_message, disable_notification=True)
+        return output
 
 
 def get_support(user_id=None):
@@ -134,8 +139,8 @@ def get_support(user_id=None):
     return supporter
 
 
-def is_support(chat_id):
-    return chat_id == get_support(chat_id)
+def is_support(user_id):
+    return user_id == get_support(user_id)
 
 
 def sort_timetable(timetable):
@@ -169,7 +174,7 @@ def send_typing_action(func):
     """Sends typing action while processing func command."""
 
     @wraps(func)
-    def command_func(update, context, *args, **kwargs):
+    def command_func(update=None, context=None, *args, **kwargs):
         if update is not None:
             context.bot.send_chat_action(chat_id=update.effective_message.chat_id, action=ChatAction.TYPING)
         return func(update, context, *args, **kwargs)
@@ -181,7 +186,7 @@ def detailed_help(func):
     """Calls the help text for a function"""
 
     @wraps(func)
-    def command_func(update, context, *args, **kwargs):
+    def command_func(update=None, context=None, *args, **kwargs):
         output = {}
         parameters = []
         try:
@@ -206,13 +211,17 @@ def support_only(func):
     """Restrict access to certain functions."""
 
     @wraps(func)
-    def command_func(update, context, *args, **kwargs):
+    def command_func(update=None, context=None, *args, **kwargs):
+        try:
+            user_id = update.message.chat_id
+        except AttributeError:
+            pass
         info = read_file("general_information.json")
-        if str(update.message.chat_id) in info["supporter"]:
-            print(f"Granted access to {func} for {update.message.from_user}")
+        if str(user_id) in info["supporter"]:
+            print(f"Granted access to {func} for {user_id}")
             return func(update, context, *args, **kwargs)
         else:
-            print(f"Denied access to {func} for {update.message.from_user}")
+            raise PermissionError(f"Denied access to {func} for {user_id}")
 
     return command_func
 
@@ -220,14 +229,18 @@ def support_only(func):
 # user commands
 @detailed_help
 @send_typing_action
-def start(update=None, context=None, user_id=None):
-    output = {str(update.message.chat_id): {"text": get_command_description("start", "long")}}
+def uc_start(update=None, context=None, user_id=None):
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    output = {str(user_id): {"text": get_command_description("start", "long")}}
     return output
 
 
 @detailed_help
 @send_typing_action
-def text(update=None, context=None, user_id=None):
+def uc_text(update=None, context=None, user_id=None):
     output = {}
     if update.message.chat.type == "private":
         output[str(update.message.chat_id)] = {
@@ -237,19 +250,25 @@ def text(update=None, context=None, user_id=None):
 
 @detailed_help
 @send_typing_action
-def add_lesson(update=None, context=None, user_id=None):
+def uc_add_lesson(update=None, context=None, user_id=None, text=None):
     output = {}
-    user_id = update.message.from_user['id']
-    parameters = update.message.text.split(" ")[1:]
+    try:
+        user_id = update.message.from_user['id']
+    except AttributeError:
+        pass
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
     message = ""
-    if "help" in parameters:
-        output[str(update.message.chat_id)] = {
-            "text": "Ein Eintrag für eine Stunde muss in einer der folgenden Formen angegeben werden:\n\nGib deine Klasse so an, wie sie auf dem Vertretungsplan angezeigt wird. Beispielsweise:\n05A\n10B\n\n ODER liste folgende Informationen durch ein Leerzeichen getrennt auf:\n - Klasse\n - Wochentag des Kurses (mo, di, mi, do, ...)\n - Stunde (Nur eine Stunde pro Eintrag)\n - Fach (Abgekürzt wie auf dem offiziellen Vertretungsplan)\n - Raum\n - (falls angegeben) Wochentyp (A oder B)\nBeispielsweise:\n/addlesson 05A mo 1 Deu 1.11\n/addlesson 12 mo 3-4 Deu 2.34"}
+    parameters = [parameter.title() for parameter in text.split(" ")[1:]]
+    if "Help" in parameters:
+        output[str(user_id)] = {
+            "text": get_command_description("addlesson", "long")}
         return output
-    parameters = [parameter.capitalize() for parameter in update.message.text.split(" ")[1:]]
     if not parameters:
-        output[str(update.message.chat_id)] = {
-            "text": "Nutze \"/addlesson help\" um zu lernen, wie du eine Stunde zu deinem Stundenplan hinzufügst."}
+        output[str(user_id)] = {
+            "text": get_command_description("addlesson", "short")}
         return output
     elif len(parameters) in (1, 5, 6,):
         if len(parameters) == 1:
@@ -283,42 +302,58 @@ def add_lesson(update=None, context=None, user_id=None):
                 write_file(path_to_user_data + str(user_id) + ".json", user_info)
                 message = message + str(lesson) + " wurde erfolgreich deinem Stundenplan hinzugefügt.\n"
         message = message + "\nBitte nutze /checktimetable um deinen aktualisierten Stundenplan zu überprüfen."
-        output[str(update.message.chat_id)] = {"text": message}
+        output[str(user_id)] = {"text": message}
     else:
-        output[str(update.message.chat_id)] = {"text": "Unbekanntes Format. Nutze \"/addlesson help\" zur Hilfe."}
+        output[str(user_id)] = {"text": "Unbekanntes Format. Nutze \"/addlesson help\" zur Hilfe."}
     return output
 
 
 @detailed_help
 @send_typing_action
-def remove_lesson(update=None, context=None, user_id=None):
+def uc_remove_lesson(update=None, context=None, user_id=None, text=None):
     output = {}
-    user_id = update.message.from_user['id']
-    parameters = update.message.text.split(" ")[1:]
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
+    parameters = text.split(" ")[1:]
     if not parameters:
-        output[str(update.message.chat_id)] = {
-            "text": "Bitte gib die Nummer deines Eintrags an. Du kannst mit /checktimetable sehen, welcher Stunde welche Nummer zugeordnet wurde."}
+        output[str(user_id)] = {
+            "text": get_command_description("rmlesson", "long")}
         return output
     user_info = json.loads(open(path_to_user_data + str(user_id) + ".json").read())
     try:
         del user_info['Stundenplan'][int(parameters[0]) - 1]
         write_file(path_to_user_data + str(user_id) + ".json", user_info)
-        output[str(update.message.chat_id)] = {
+        output[str(user_id)] = {
             "text": "Dein Stundenplan wurde bearbeitet. Nutze /checktimetable um ihn zu überprüfen."}
     except IndexError:
-        output[str(update.message.chat_id)] = {"text": "Eintrag konnte nicht gelöscht werden."}
+        output[str(user_id)] = {"text": "Eintrag konnte nicht gelöscht werden."}
     return output
 
 
 @detailed_help
 @send_typing_action
-def check_timetable(update=None, context=None, user_id=None):
+def uc_check_timetable(update=None, context=None, user_id=None, text=None):
     output = {}
-    user_id = update.message.from_user['id']
-    parameters = update.message.text.split(" ")[1:]
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
+    print("Getting parameters")
+    parameters = text.split(" ")[1:]
+    print("Got parameters")
     try:
         user_info = json.loads(open(path_to_user_data + str(user_id) + ".json", encoding="utf-8").read())
-        if "sort" in parameters or "fix" in parameters:
+        if "sort" in parameters or "fix" in parameters or True:
             print("Sorting")
             user_info['Stundenplan'] = sort_timetable(user_info['Stundenplan'])
             print("Sorted")
@@ -331,8 +366,8 @@ def check_timetable(update=None, context=None, user_id=None):
             write_file(str(user_id) + ".json", user_info, path_to_user_data)
         if "csv" in parameters:
             if "help" in parameters:
-                output[str(update.message.chat_id)] = {
-                    "text": "Nutze folgende Beschreibung, um deinen Stundenplan in Excel anzusehen:\nÖffne Excel\nKlicke auf \"Daten/Externe Daten abrufen/Aus Text\" und wähle die Datei aus, die dir der Bot nach /checktimetable csv zugesendet hat.\nWähle \"Getrennt\" aus und drücke auf \"Weiter\"\nSetzt einen Haken bei \"Komma\" un drücke auf \"Weiter\"\nDrücke auf \"Fertig stellen\"\nDrücke auf \"OK\"\nBearbeite deine Daten wie es dir beliebt."}
+                output[str(user_id)] = {
+                    "text": get_command_description("checktimetable", "csv")}
             with open(str(user_id) + ".csv", "w", encoding='utf-8') as timetable:
                 timetable_writer = csv.writer(timetable, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
@@ -346,7 +381,7 @@ def check_timetable(update=None, context=None, user_id=None):
                         weekdays])
             csv_doc = open(str(user_id) + ".csv", "rb")
             print("Read doc")
-            output[str(update.message.chat_id)] = {"document": csv_doc}
+            output[str(user_id)] = {"document": csv_doc}
             csv_doc.close()
             os.remove(str(user_id) + ".csv")
         else:
@@ -358,21 +393,28 @@ def check_timetable(update=None, context=None, user_id=None):
                     timetable_txt = timetable_txt + str(entry) + "\t"
                 timetable_txt = timetable_txt + "\n"
                 index += 1
-            output[str(update.message.chat_id)] = {"text": "Hier ist dein " + "sortierter " * (
-                    "sort" in update.message.text.split(" ")[1:]) + "Stundenplan:\n" + timetable_txt}
+            output[str(user_id)] = {"text": "Hier ist dein " + "sortierter " * (
+                    "sort" in text.split(" ")[1:]) + "Stundenplan:\n" + timetable_txt}
     except FileNotFoundError:
-        output[str(update.message.chat_id)] = {
+        output[str(user_id)] = {
             "text": "Ich kann keine Daten zu deinem Stundenplan finden. Nutze \"addlesson help\" um zu lernen, wie du deinen Stundenplan erstellen kannst."}
     return output
 
 
 @detailed_help
 @send_typing_action
-def create_timetable(update=None, context=None, user_id=None):
+def uc_create_timetable(update=None, context=None, user_id=None, text=None):
     output = {}
     # Dieser Befehl erlaubt es dem Nutzer, den eigenen Stundenplan mit einer CSV-Datei zu ersetzen
-    user_id = update.message.from_user["id"]
-    parameters = update.message.text.split(" ")[1:]
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
+    parameters = text.split(" ")[1:]
     if update.message.document:
         doc = update.message.document
         print(doc)
@@ -381,9 +423,17 @@ def create_timetable(update=None, context=None, user_id=None):
 
 @detailed_help
 @send_typing_action
-def help_text(update=None, context=None, user_id=None):
+def uc_help_text(update=None, context=None, user_id=None, text=None):
     output = {}
-    if not update.message.text.split(" ")[1:]:
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
+    if not text.split(" ")[1:]:
         message = get_command_description("help", "long") + "\n"
         for command in command_to_function:
             try:
@@ -392,40 +442,40 @@ def help_text(update=None, context=None, user_id=None):
                 if desc == get_command_description("unspecific", "missing_command_description"):
                     notification = f"Short description for {command} equals missing_command_description."
                     context.bot.send_message(chat_id=get_support(), text=notification)
-                if not desc.startswith("support_only") or is_support(update.message.chat_id):
+                if not desc.startswith("support_only") or is_support(user_id):
                     message = message + "\n/" + command + " - " + desc
             except KeyError:
                 support_list = read_file("general_information.json")["supporter"]
-                if str(update.message.chat_id) == support_list:
+                if str(user_id) == support_list:
                     message = message + "\n/" + command
                 print("Missing description for \"" + command + "\"")
     else:
         topic = "Hier sind Details zu den gefragten Befehlen:\n"
         message = topic
-        for command in update.message.text.split(" ")[1:]:
+        for command in text.split(" ")[1:]:
             if command in [cmd for cmd in command_to_function]:
                 if (not get_command_description(command=command, detail="short").startswith("support_only")
-                        or is_support(update.message.chat_id)):
+                        or is_support(user_id)):
                     message = message + "\n/" + command + " " + get_command_description(command, "long")
         if message == topic:
             message = message + "Der gefragte Befehl ist nicht verfügbar."
-    output[str(update.message.chat_id)] = {"text": message}
+    output[str(user_id)] = {"text": message}
     return output
 
 
 @detailed_help
 @send_typing_action
-def information(update=None, context=None, user_id=None):
+def uc_information(update=None, context=None, user_id=None, text=None):
     output = {}
-    assert update or user_id
     try:
-        user_id = update.message.from_user['id']
+        user_id = update.message.chat_id
     except AttributeError:
         pass
     try:
-        parameters = update.message.text.split(" ")[1:]
+        text = update.message.text
     except AttributeError:
-        parameters = []
+        pass
+    parameters = text.split(" ")[1:]
     reply = ""
     default_iterations = 3
     max_iterations = 7
@@ -443,7 +493,7 @@ def information(update=None, context=None, user_id=None):
         try:
             user_info = json.loads(open(path_to_user_data + str(user_id) + ".json", encoding="utf-8").read())
         except FileNotFoundError:
-            output[str(update.message.chat_id)] = {"text": "Ich habe keine Informationen über dich gespeichert. Bitte trage deinen Stundenplan mit /addlesson ein, damit ich dir helfen kann."}
+            output[str(user_id)] = {"text": "Ich habe keine Informationen über dich gespeichert. Bitte trage deinen Stundenplan mit /addlesson ein, damit ich dir helfen kann."}
             return output
 
         # Correct username and password
@@ -505,59 +555,86 @@ def information(update=None, context=None, user_id=None):
 
 @detailed_help
 @send_typing_action
-def change_login(update=None, context=None, user_id=None):
+def uc_change_login(update=None, context=None, user_id=None, text=None):
     output = {}
-    user_id = update.message.from_user['id']
-    parameters = update.message.text.split(" ")[1:]
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
+    parameters = text.split(" ")[1:]
     if len(parameters) == 2:
         user_info = json.loads(open(path_to_user_data + str(user_id) + ".json", encoding="utf-8").read())
         user_info['Benutzername'] = parameters[0]
         user_info['Passwort'] = parameters[1]
-        with open(path_to_user_data + str(user_id) + ".json", 'w') as file:
-            file.write(str(user_info))
-            file.close()
-        output[str(update.message.chat_id)] = {
+        write_file(str(user_id) + ".json", user_info, path_to_user_data)
+        output[str(user_id)] = {
             "text": f"Dein Nutzerdaten wurden geändert zu\nBenutzername: {user_info['Benutzername']}\nPasswort: {user_info['Passwort']}"}
     else:
-        output[str(update.message.chat_id)] = {"text": "Überprüfe bitte die Syntax deiner Angaben."}
+        output[str(user_id)] = {"text": "Überprüfe bitte die Syntax deiner Angaben."}
     return output
 
 
 @detailed_help
 @send_typing_action
-def user_data(update=None, context=None, user_id=None):
+def uc_user_data(update=None, context=None, user_id=None, text=None):
     output = {}
-    user_id = update.message.from_user['id']
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
     try:
         file = path_to_user_data + str(user_id) + ".json"
-        context.bot.send_document(chat_id=update.message.chat_id, document=open(file, 'rb'))
-        output[str(update.message.chat_id)] = {"text": "Hier sind alle Daten, die dem System über dich bekannt sind."}
+        context.bot.send_document(chat_id=user_id, document=open(file, 'rb'))
+        output[str(user_id)] = {"text": "Hier sind alle Daten, die dem System über dich bekannt sind."}
     except FileNotFoundError:
-        output[str(update.message.chat_id)] = {
+        output[str(user_id)] = {
             "text": "Es liegen keine Daten zu deiner Nutzer-ID vor. Bitte nutze /addlesson um deinen Stundenplan einzurichten"}
     return output
 
 
 @detailed_help
 @send_typing_action
-def clear_data(update=None, context=None, user_id=None):
+def uc_clear_data(update=None, context=None, user_id=None, text=None):
     output = {}
-    user_id = update.message.from_user['id']
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
     os.remove(path_to_user_data + str(user_id) + ".json")
     try:
         open(str(user_id) + ".json")
         print("Fehler beim Löschen der Daten eines Nutzers: Daten noch vorhanden:")
-        output[str(update.message.chat_id)] = {
+        output[str(user_id)] = {
             "text": "Beim Löschen deiner Daten ist ein Fehler aufgetreten. Falls der Fehler weiterhin besteht, kontaktiere bitten den Host dieses Bots."}
     except FileNotFoundError:
-        output[str(update.message.chat_id)] = {"text": "Deine Daten wurden erfolgreich gelöscht."}
+        output[str(user_id)] = {"text": "Deine Daten wurden erfolgreich gelöscht."}
     return output
 
 
 @detailed_help
 @send_typing_action
-def relevant(update=None, context=None, user_id=None):
-    output = {str(update.message.chat_id): {
+def uc_relevant(update=None, context=None, user_id=None, text=None):
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
+    output = {str(user_id): {
         "text": "Diese Funktion befindet sich derzeit im Aufbau und steht nicht zur Verfügung."}}
     # TODO Diese Funktion zeigt die Unterrichtsstunden an, die heute und morgen für den Nutzer interessant sind.
     # Hierzu muss der gesamte Stundenplan hinterlegt sein.
@@ -566,34 +643,60 @@ def relevant(update=None, context=None, user_id=None):
 
 @detailed_help
 @send_typing_action
-def support(update=None, context=None, user_id=None):
+def uc_support(update=None, context=None, user_id=None, text=None):
     output = {}
-    parameters = update.message.text.split(" ")[1:]
-    if parameters and not update.message.from_user["is_bot"]:
-        supporter = get_support(update.message.from_user['id'])
-        meta = str(update.message.chat_id)
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
+    parameters = text.split(" ")[1:]
+    user_is_bot = False
+    try:
+        user_is_bot = update.message.from_user["is_bot"]
+    except AttributeError:
+        pass
+    message_id = None
+    try:
+        message_id = update.message.message_id
+    except AttributeError:
+        pass
+    if parameters and not user_is_bot:
+        supporter = get_support(user_id)
+        meta = str(user_id)
         problem = " ".join(parameters)
-        context.bot.forward_message(chat_id=supporter, from_chat_id=update.message.chat_id,
-                                    message_id=update.message.message_id,
+        context.bot.forward_message(chat_id=supporter, from_chat_id=user_id,
+                                    message_id=message_id,
                                     text=meta + " hat folgendes Problem mit dem Vertretungsplan_Bot:\n\n" + problem)
-        output[str(update.message.chat_id)] = {
+        output[str(user_id)] = {
             "text": "Dein Anliegen wurde an deinen Supporter gesendet. Bitte nimm zur Kenntnis, dass dieses Projekt freiwillig betrieben wird und wir manchmal auch keine Zeit haben, um direkt zu antworten."}
     return output
 
 
 @detailed_help
 @send_typing_action
-def status(update=None, context=None, user_id=None):
+def uc_status(update=None, context=None, user_id=None, text=None):
     output = {}
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
     # Make it possible for the support to change this message
-    parameters = update.message.text.split(" ")[1:]
-    if str(update.message.chat_id) in \
+    parameters = text.split(" ")[1:]
+    if str(user_id) in \
             read_file("general_information.json")["supporter"]:
         if parameters:
             info = read_file("general_information.json")
             info["status_message"] = " ".join(parameters)
             write_file("general_information.json", info)
-    output[str(update.message.chat_id)] = {"text": str(
+    output[str(user_id)] = {"text": str(
         json.loads(open(path_to_sensible_data + "general_information.json", encoding='utf-8').read())[
             "status_message"])}
     return output
@@ -604,9 +707,13 @@ def status(update=None, context=None, user_id=None):
 @detailed_help
 @support_only
 @send_typing_action
-def answer_support_question(update=None, context=None, user_id=None):
+def uc_answer_support_question(update=None, context=None, user_id=None, text=None):
     output = {}
-    reply_message = "Du hast eine Antwort vom Support erhalten:\n\n" + " ".join(update.message.text.split(" ")[1:])
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    reply_message = "Du hast eine Antwort vom Support erhalten:\n\n" + " ".join(text.split(" ")[1:])
     user = update.message.reply_to_message.forward_from
     supporter = update.message.chat_id
     if update.message.text.split(" ")[1:]:
@@ -623,11 +730,19 @@ def answer_support_question(update=None, context=None, user_id=None):
 @detailed_help
 @support_only
 @send_typing_action
-def send_emergency_url(update=None, context=None, user_id=None):
+def uc_send_emergency_url(update=None, context=None, user_id=None):
     output = {}
-    parameters = update.message.text.split(" ")[1:]
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
+    parameters = text.split(" ")[1:]
     info = read_file("general_information.json")
-    if update.message.chat_id in info["supporter"]:
+    if user_id in info["supporter"]:
         info["emergency_url"] = parameters[0]
     write_file(path_to_sensible_data + "general_information.json", info)
     return output
@@ -636,10 +751,18 @@ def send_emergency_url(update=None, context=None, user_id=None):
 @detailed_help
 @support_only
 @send_typing_action
-def set_command_description(update=None, context=None, user_id=None):
+def uc_set_command_description(update=None, context=None, user_id=None, text=None):
     output = {}
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except:
+        pass
     command_description = read_file("command_description.json")
-    parameters = update.message.text.split(" ")[1:]
+    parameters = text.split(" ")[1:]
     command = parameters[0]
     detail = parameters[1]
     description = " ".join(parameters[2:])
@@ -648,7 +771,7 @@ def set_command_description(update=None, context=None, user_id=None):
     except KeyError as e:
         command_description[command] = {detail: description}
     write_file("command_description.json", command_description)
-    output[str(update.message.chat_id)] = {
+    output[str(user_id)] = {
         "text": f"{detail} description of {command} has been changed to {description}"}
     return output
 
@@ -656,9 +779,17 @@ def set_command_description(update=None, context=None, user_id=None):
 @detailed_help
 @support_only
 @send_typing_action
-def stop_bot(update=None, context=None, user_id=None):
+def uc_stop_bot(update=None, context=None, user_id=None, text=None):
     output = dict()
-    output[str(update.message.chat_id)] = {"text": "Stopping bot", "disable_notification": True}
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
+    output[str(user_id)] = {"text": "Stopping bot", "disable_notification": True}
     threading.Thread(target=stop, args=(updater,)).start()
     return output
 
@@ -666,20 +797,29 @@ def stop_bot(update=None, context=None, user_id=None):
 @detailed_help
 @support_only
 @send_typing_action
-def test(update=None, context=None, user_id=None):
-    output = {str(update.message.chat_id): {"document": open("README.md", 'rb')}}
+def uc_test(update=None, context=None, user_id=None, text=None):
+    try:
+        user_id = update.message.chat_id
+    except AttributeError:
+        pass
+    try:
+        text = update.message.text
+    except AttributeError:
+        pass
+    assert update
+    output = {str(user_id): {"text": "\n".join(tests.Test().run())}}
     return output
 
 
 @detailed_help
-def handle_document(update=None, context=None, user_id=None):
+def uc_handle_document(update=None, context=None, user_id=None):
     file = update.message.document
     file_id = file.file_id
     try:
         assert file.file_name.endswith(".json"), "File format is not .json"
         assert is_support(update.message.chat_id), "Chat is not support"
         assert update.message.caption == "store", "No store command"
-        content = json.loads(requests.get(context.bot.get_file(file_id).to_dict()["file_path"]).text)
+        content = json.loads(requests.get(context.bot.uc_get_file(file_id).to_dict()["file_path"]).text)
         write_file(file.file_name, content)
         context.bot.send_message(chat_id=update.message.chat_id, text=f"Stored {file.file_name}")
     except AssertionError as e:
@@ -689,7 +829,7 @@ def handle_document(update=None, context=None, user_id=None):
 
 @support_only
 @send_typing_action
-def get_file(update=None, context=None, user_id=None):
+def uc_get_file(update=None, context=None, user_id=None):
     output = {}
     parameters = update.message.text.split(" ")[1:]
     assert not parameters[0].startswith(".."), "Path must not begin with .."
@@ -702,7 +842,7 @@ def get_file(update=None, context=None, user_id=None):
 
 
 @send_typing_action
-def choose_notification_level(update=None, context=None, user_id=None):
+def uc_choose_notification_level(update=None, context=None, user_id=None):
     output = {}
     keyboard = [[InlineKeyboardButton("Keine", callback_data=f'Ringer-{update.message.from_user["id"]}-None')],
                 [InlineKeyboardButton("Leise", callback_data=f'Ringer-{update.message.from_user["id"]}-Silent')],
@@ -717,7 +857,7 @@ def choose_notification_level(update=None, context=None, user_id=None):
     return output
 
 
-def callback(update=None, context=None, user_id=None):
+def uc_callback(update=None, context=None, user_id=None):
     assert update.callback_query, "No callback given"
     query = update.callback_query
     answer = query.data
@@ -737,27 +877,27 @@ command_to_function = {}
 
 dispatcher = updater.dispatcher
 
-command_to_function = {"auskunft": information,
-                       "help": help_text,
-                       "start": start,
-                       "status": status,
-                       "addlesson": add_lesson,
-                       "rmlesson": remove_lesson,
-                       "checktimetable": check_timetable,
-                       "changelogin": change_login,
-                       "userdata": user_data,
-                       "cleardata": clear_data,
-                       "benachrichtigungston": choose_notification_level,
-                       "support": support,
-                       "test": test,
-                       "answer_sq": answer_support_question,
-                       "send_emergency_url": send_emergency_url,
-                       "stop_bot": stop_bot,
-                       "set_command_description": set_command_description,
-                       "get_file": get_file}
+command_to_function = {"auskunft": uc_information,
+                       "help": uc_help_text,
+                       "start": uc_start,
+                       "status": uc_status,
+                       "addlesson": uc_add_lesson,
+                       "rmlesson": uc_remove_lesson,
+                       "checktimetable": uc_check_timetable,
+                       "changelogin": uc_change_login,
+                       "userdata": uc_user_data,
+                       "cleardata": uc_clear_data,
+                       "benachrichtigungston": uc_choose_notification_level,
+                       "support": uc_support,
+                       "test": uc_test,
+                       "answer_sq": uc_answer_support_question,
+                       "send_emergency_url": uc_send_emergency_url,
+                       "stop_bot": uc_stop_bot,
+                       "set_command_description": uc_set_command_description,
+                       "get_file": uc_get_file}
 
 
-def command(update=None, context=None, user_command=None, user=None, send=True):
+def uc_command(update=None, context=None, user_command=None, user=None, send=True):
     assert update or (user_command and user)
     try:
         user_command = update.message.text.split(" ")[0].split("@")[0].lstrip("/")
@@ -800,7 +940,7 @@ def command(update=None, context=None, user_command=None, user=None, send=True):
         return results
 
 
-def dsb_changed(context):
+def uc_dsb_changed(context):
     output = {}
     try:
         unterrichtszeiten = []
@@ -858,15 +998,15 @@ def dsb_changed(context):
             new_relevants = vertretungsplan.getRelevants(kursliste, username, password, level=5).copy()
             if new_relevants != user_info["Relevant"]:
                 print(f"{user} is not up to date!")
-                command(context=context, user_command="/auskunft", user=int(user))
+                uc_command(context=context, user_command="/auskunft", user=int(user))
                 print(f"{user} has been sent the latest news.")
             else:
                 print(f"{user} is up to date.")
 
 
-print("Hello World!")
 print("Running as " + str(__name__))
 if __name__ == "__main__":
+    print("Running bot")
     from telegram.ext import MessageHandler, Filters, CallbackQueryHandler
 
     general_information = read_file(path_to_sensible_data + "general_information.json")
@@ -876,13 +1016,13 @@ if __name__ == "__main__":
         general_information["refresh_interval"] = 600
         write_file(path_to_sensible_data + "general_information.json", general_information)
         interval = general_information["refresh_interval"]
-    dispatcher.add_handler(MessageHandler(Filters.command, command))
-    dispatcher.add_handler(MessageHandler(Filters.text, text))
-    dispatcher.add_handler(MessageHandler(Filters.document, handle_document))
-    updater.job_queue.run_repeating(dsb_changed,
+    dispatcher.add_handler(MessageHandler(Filters.command, uc_command))
+    dispatcher.add_handler(MessageHandler(Filters.text, uc_text))
+    dispatcher.add_handler(MessageHandler(Filters.document, uc_handle_document))
+    updater.job_queue.run_repeating(uc_dsb_changed,
                                     interval=interval,
                                     first=interval - time.time() % interval)
-    updater.dispatcher.add_handler(CallbackQueryHandler(callback))
+    updater.dispatcher.add_handler(CallbackQueryHandler(uc_callback))
 
     dispatcher.add_error_handler(error)
 

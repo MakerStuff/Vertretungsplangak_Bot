@@ -4,8 +4,11 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e7811e6-04a7-4eb1-8931-e8254e1c8891" name="Default Changelist" comment="">
+    <list default="true" id="3e7811e6-04a7-4eb1-8931-e8254e1c8891" name="Default Changelist" comment="Add option to not send an error message to the support.">
+      <change afterPath="$PROJECT_DIR$/tests.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dsbapi.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbapi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vertretungsplan.py" beforeDir="false" afterPath="$PROJECT_DIR$/vertretungsplan.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vertretungsplan_bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/vertretungsplan_bot.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -24,7 +27,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Fix-wrong-url" />
+        <entry key="$PROJECT_DIR$" value="Add-silence-errors-option" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -54,6 +57,27 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.vertretungsplan_bot">
+    <configuration name="tests" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Vertretungsplangak_Bot" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="vertretungsplan" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Vertretungsplangak_Bot" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -100,6 +124,7 @@
       <list>
         <item itemvalue="Python.vertretungsplan_bot" />
         <item itemvalue="Python.vertretungsplan" />
+        <item itemvalue="Python.tests" />
         <item itemvalue="Python.vertretungsplan_bot" />
         <item itemvalue="Python.vertretungsplan" />
       </list>
@@ -195,22 +220,22 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="326" y="269" width="619" height="261" key="Github.CreatePullRequestDialog/0.28.1280.744@0.28.1280.744" timestamp="1578481144571" />
-    <state width="1257" height="155" key="GridCell.Tab.0.bottom" timestamp="1578481426245">
+    <state width="1257" height="134" key="GridCell.Tab.0.bottom" timestamp="1578841076087">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="155" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1578481426245" />
-    <state width="1257" height="155" key="GridCell.Tab.0.center" timestamp="1578481426244">
+    <state width="1257" height="134" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1578841076087" />
+    <state width="1257" height="134" key="GridCell.Tab.0.center" timestamp="1578841076086">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="155" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1578481426244" />
-    <state width="1257" height="155" key="GridCell.Tab.0.left" timestamp="1578481426244">
+    <state width="1257" height="134" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1578841076086" />
+    <state width="1257" height="134" key="GridCell.Tab.0.left" timestamp="1578841076085">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="155" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1578481426244" />
-    <state width="1257" height="155" key="GridCell.Tab.0.right" timestamp="1578481426245">
+    <state width="1257" height="134" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1578841076085" />
+    <state width="1257" height="134" key="GridCell.Tab.0.right" timestamp="1578841076086">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="155" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1578481426245" />
+    <state width="1257" height="134" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1578841076086" />
     <state x="129" y="35" key="SettingsEditor" timestamp="1578324236380">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -219,10 +244,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1576600893335" />
-    <state x="296" y="227" key="com.intellij.ide.util.TipDialog" timestamp="1576267027858">
+    <state x="296" y="227" key="com.intellij.ide.util.TipDialog" timestamp="1578840748106">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="296" y="227" key="com.intellij.ide.util.TipDialog/0.28.1280.744@0.28.1280.744" timestamp="1576267027858" />
+    <state x="296" y="227" key="com.intellij.ide.util.TipDialog/0.28.1280.744@0.28.1280.744" timestamp="1578840748106" />
     <state x="300" y="268" width="672" height="264" key="git4idea.rebase.GitRebaseDialog" timestamp="1578473267267">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
