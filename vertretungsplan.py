@@ -81,7 +81,6 @@ def vertretungsplan(username, password, save=True, location="../Vertretungsplang
             file.close()
     return einträge
 
-
 def getDoc(username, password):
     url = getURL(username, password)
     print(f"This is the url to be checked: {url}")
@@ -95,74 +94,22 @@ def getDoc(username, password):
         raise e
     return doc
 
-
-def try_get_url_via_desktop_api(username, password):
-    LOGIN_URL = "https://www.dsbmobile.de/Login.aspx"
-    DATA_URL = "https://www.dsbmobile.de/jhw-1fd98248-440c-4283-bef6-dc82fe769b61.ashx/GetData"
-    
-    session = requests.Session()
-
-    r = session.get(LOGIN_URL)
-
-    page = bs(r.text, "html.parser")
-    data = {
-        "txtUser": username,
-        "txtPass": password,
-        "ctl03": "Anmelden",
-    }
-    fields = ["__LASTFOCUS", "__VIEWSTATE", "__VIEWSTATEGENERATOR",
-              "__EVENTTARGET", "__EVENTARGUMENT", "__EVENTVALIDATION"]
-    for field in fields:
-        element = page.find(id=field)
-        if element is not None:
-            data[field] = element.get("value")
-
-    session.post(LOGIN_URL, data)
-
-    params = {
-        "UserId": "",
-        "UserPw": "",
-        "Abos": [],
-        "AppVersion": "2.3",
-        "Language": "de",
-        "OsVersion": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36",
-        "AppId": "",
-        "Device": "WebApp",
-        "PushId": "",
-        "BundleId": "de.heinekingmedia.inhouse.dsbmobile.web",
-        "Date": "2019-11-06T16:03:11.322Z",
-        "LastUpdate": "2019-11-06T16:03:11.322Z"
-    }
-    # Convert params into the right format
-    params_bytestring = json.dumps(params, separators=(',', ':')).encode("UTF-8")
-    params_compressed = base64.b64encode(gzip.compress(params_bytestring)).decode("UTF-8")
-    json_data = {"req": {"Data": params_compressed, "DataType": 1}}
-
-    headers = {"Referer": "www.dsbmobile.de"}
-    r = session.post(DATA_URL, json=json_data, headers=headers)
-
-    data_compressed = json.loads(r.content)["d"]
-    data = json.loads(gzip.decompress(base64.b64decode(data_compressed)))
-
-    table_url = data["ResultMenuItems"][0]["Childs"][1]["Root"]["Childs"][0]["Childs"][0]["Detail"]
-    return table_url
-
-
 # Parameter `tries` says how often to try requesting each API
 def getURL(username, password, tries=5, location="../Vertretungsplangak_Data/"):
     for i in range(tries):
         try:
-            print("Trying login via Desktop API...")
-            table_url = try_get_url_via_desktop_api(username, password)
-            print(table_url)
-            return table_url
-        except Exception as e_desktop:
-            logger.exception("Login/GetData via Desktop API failed, trying Android API...")
-            try:
-                myDSB = dsbapi.DSBApi(username, password)
-                return myDSB.fetch_entries()
-            except Exception as e_android:
-                logger.exception("Android login failed, too")
+            index = dsbapi.fetch_index(logger)
+            
+            # Iterate through the three content tabs and find the plan-tab
+            for tab in index["ResultMenuItems"][0]["Childs"]:
+                if tab["Title"] == "Pl\u00e4ne":
+                    table_url = tab["Root"]["Childs"][0]["Childs"][0]["Detail"]
+                    return table_url
+            
+            raise Exception("Couldn't find relevant data in index")
+        except Exception as e:
+            logger.exception(e)
+    # If we arrive at this point, the API's don't work.
     
     # Try the emergency-url as a last resort
     general_information = json.load(open(location + "general_information.json"))
