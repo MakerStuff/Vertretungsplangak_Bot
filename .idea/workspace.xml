@@ -9,8 +9,8 @@
       <change beforePath="$PROJECT_DIR$/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__main__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dsbbot.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbbot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/orgafunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/orgafunctions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/usercommands.py" beforeDir="false" afterPath="$PROJECT_DIR$/usercommands.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vertretungsplan.py" beforeDir="false" afterPath="$PROJECT_DIR$/vertretungsplan.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -144,8 +144,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.__main__" />
         <item itemvalue="Python.tests" />
+        <item itemvalue="Python.__main__" />
         <item itemvalue="Python.vertretungsplan_bot" />
         <item itemvalue="Python.vertretungsplan" />
         <item itemvalue="Python.vertretungsplan_bot" />
@@ -210,7 +210,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582299927975</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Completely reworked the bot. &#10;Data is now stored in a sqlite3 database and commands are much easier to add and maintain.">
+      <created>1582301099659</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1582301099659</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -246,10 +253,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="314" y="28" width="644" height="743" key="#vertretungsplan_bot/0.28.1280.744@0.28.1280.744" timestamp="1576267241324" />
-    <state x="217" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1582299927724">
+    <state x="217" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1582301099531">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="217" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1582299927724" />
+    <state x="217" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1582301099531" />
     <state x="119" y="87" width="1026" height="624" key="DiffContextDialog" timestamp="1576600586175">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -262,22 +269,22 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="326" y="269" width="619" height="261" key="Github.CreatePullRequestDialog/0.28.1280.744@0.28.1280.744" timestamp="1578481144571" />
-    <state width="1257" height="189" key="GridCell.Tab.0.bottom" timestamp="1582300656563">
+    <state width="1257" height="189" key="GridCell.Tab.0.bottom" timestamp="1582303045576">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1582300656563" />
-    <state width="1257" height="189" key="GridCell.Tab.0.center" timestamp="1582300656563">
+    <state width="1257" height="189" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1582303045576" />
+    <state width="1257" height="189" key="GridCell.Tab.0.center" timestamp="1582303045576">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1582300656563" />
-    <state width="1257" height="189" key="GridCell.Tab.0.left" timestamp="1582300656562">
+    <state width="1257" height="189" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1582303045576" />
+    <state width="1257" height="189" key="GridCell.Tab.0.left" timestamp="1582303045575">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1582300656562" />
-    <state width="1257" height="189" key="GridCell.Tab.0.right" timestamp="1582300656563">
+    <state width="1257" height="189" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1582303045575" />
+    <state width="1257" height="189" key="GridCell.Tab.0.right" timestamp="1582303045576">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1582300656563" />
+    <state width="1257" height="189" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1582303045576" />
     <state x="172" y="96" width="893" height="563" key="MultipleFileMergeDialog" timestamp="1581615389247">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -286,10 +293,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="129" y="35" key="SettingsEditor/0.28.1280.744@0.28.1280.744" timestamp="1578324236380" />
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1581615693397">
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1582301110779">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1581615693397" />
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1582301110779" />
     <state x="296" y="227" key="com.intellij.ide.util.TipDialog" timestamp="1582119656264">
       <screen x="0" y="28" width="1280" height="744" />
     </state>

@@ -21,7 +21,6 @@ class DSBBot:
         # apply token
         self.token = token
         # set user commands
-        print(kwargs)
         self.__dict__.update({uc: kwargs[uc](str.join("", uc[3:])) for uc in kwargs})
         self.uc_help = self.Help(parent=self)
         self.updater = Updater(token=token, use_context=updater_use_context)
@@ -38,10 +37,9 @@ class DSBBot:
         command_list = [str.join("", cmd[3:]) for cmd in self.__dir__() if cmd.startswith("uc_")]
         cmd = update.message.text.split(" ")[0].lstrip("/").split("@")[0]
         if cmd in command_list:
-            function = self.__getattribute__(f"uc_{cmd}")
-            result = function.__call__(update_text=update.message.text,
-                                       chat_id=update.message.chat_id,
-                                       database_name=self.database_name)
+            result = self.run_command(update_text=update.message.text,
+                                      chat_id=update.message.chat_id,
+                                      database_name=self.database_name)
         else:
             result = {update.message.chat_id: {"text": self.Error.cmd_unavailable.replace("{cmd}", cmd)}}
         if do_send:
@@ -52,6 +50,15 @@ class DSBBot:
                 except BadRequest:
                     print(f"WARNING: BAD REQUEST with chat \"{chat_id}\".")
         return
+
+    def run_command(self,
+                    update_text: str,
+                    chat_id: int,
+                    database_name: str):
+        function = self.__getattribute__(f"uc_{str.join('', update_text.split(' ')[0][1:])}")
+        return function(update_text=update_text,
+                        chat_id=chat_id,
+                        database_name=database_name)
 
     class Help:
         short = "Listet alle verfügbaren Befehle auf."
@@ -67,6 +74,7 @@ class DSBBot:
             if not update_text.split(" ")[1:]:
                 command_list = ["/" + "".join(cmd[3:]) + " - " + self.parent.__getattribute__(cmd).short
                                 for cmd in self.parent.__dir__() if cmd.startswith("uc_")]
+                # do not sort command_list for better readability
                 return {chat_id: {"text": self.header + "\n" * 2 + str.join("\n", command_list)}}
 
     class Error:

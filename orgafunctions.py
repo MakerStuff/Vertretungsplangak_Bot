@@ -1,4 +1,4 @@
-import json
+from typing import *
 import sqlite3
 
 
@@ -21,8 +21,10 @@ def get_support(chat_id: int,
 
 def update_user_profile(chat_id: int,
                         database_name: str,
-                        parameters,
+                        parameters: Optional[dict] = None,
                         **kwargs):
+    if not parameters:
+        parameters = kwargs
     variables = [str.join('=', [x, str(parameters[x])]) for x in parameters]
     columns = str.join(', ', variables)
     db = sqlite3.connect(database_name)

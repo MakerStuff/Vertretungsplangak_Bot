@@ -14,10 +14,13 @@ class UserCommand:
             string = "/" + string
         self.usage_string = string
 
+    def __repr__(self):
+        return "user command \"" + self.usage_string + "\""
+
 
 class Start(UserCommand):
     short = "Starthilfe"
-    msg = "Registriere dich mit /register"
+    msg = "Registriere dich mit /register oder lass dir eine Liste der verfügbaren Befehle mit /help ausgeben."
 
     def __call__(self,
                  update_text: str,
@@ -142,7 +145,6 @@ Du kannst auch mehrere Stunden auf einmal eintragen, indem du jede Stunde in ein
                 used_columns_string = str.join(', ', used_columns)
                 used_values_string = str.join(', ', used_values)
                 cmd = f"INSERT INTO lessons_{chat_id}({used_columns_string}) VALUES({used_values_string});"
-                print(cmd)
                 db.execute(cmd)
         db.commit()
         db.close()
@@ -217,10 +219,8 @@ class Information(UserCommand):
         db = sqlite3.connect(database_name)
         db_user = [x for x in db.execute(f"SELECT dsb_user, dsb_pswd FROM users WHERE chat_id={chat_id};")][0]
         list_lessons = [[str(y) for y in x] for x in db.execute(f"SELECT * FROM lessons_{chat_id};")]
-        print(list_lessons)
         if list_lessons:
             relevant_entries = vertretungsplan.getRelevants(list_lessons, db_user[0], db_user[1])
-            print(f"Relevant: {relevant_entries}")
             text = str.join('\n', [str.join(" ", e) for e in relevant_entries])
             return {chat_id: {"text": self.msg + "\n\n" + (text or self.no_relevants)}}
         else:
