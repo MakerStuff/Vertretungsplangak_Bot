@@ -5,7 +5,17 @@ from dsbbot import DSBBot
 from orgafunctions import update_user_profile, get_support
 
 
-class Start:
+class UserCommand:
+    # usage_string represents the string a user has to enter to access that command eg.: /help
+    usage_string = "/"
+
+    def __init__(self, string: str):
+        if not string.startswith("/"):
+            string = "/" + string
+        self.usage_string = string
+
+
+class Start(UserCommand):
     short = "Starthilfe"
     msg = "Registriere dich mit /register"
 
@@ -16,7 +26,7 @@ class Start:
         return {chat_id: {"text": self.msg}}
 
 
-class Register:
+class Register(UserCommand):
     short = "Registriere dich mit diesem Befehl."
     success = "Deine Registrierung war erfolgreich."
     already_registered = "Du hast dich bereits bei diesem Bot registriert."
@@ -42,7 +52,7 @@ class Register:
         return {chat_id: {"text": self.success}}
 
 
-class UpdateProfile:
+class UpdateProfile(UserCommand):
     short = "Bearbeite dein Profil."
     success = "Dein Profil wurde erfolgreich bearbeitet."
 
@@ -60,12 +70,12 @@ class UpdateProfile:
         return {chat_id: {"text": self.success}}
 
 
-class DeleteProfile:
+class DeleteProfile(UserCommand):
     short = "Löscht alle Daten, die über dich bekannt sind."
     success = "Deine Daten wurden erfolgreich gelöscht."
     detail = """Dieser Befehl löscht alle Daten, die dem Bot über dich bekannt sind.
 Um sicher zu gehen, dass du deine Daten wirklich löschen willst, schreibe \"ja wirklich\" dahinter.
-bspw.: /delete_profile ja wirklich"""
+bspw.: {usage_string} ja wirklich"""
 
     def __call__(self,
                  update_text: str,
@@ -82,13 +92,13 @@ bspw.: /delete_profile ja wirklich"""
             db.close()
             return {chat_id: {"text": self.success}}
         else:
-            return {chat_id: {"text": self.detail}}
+            return {chat_id: {"text": self.detail.replace("{usage_string}", self.usage_string)}}
 
 
-class AddLesson:
-    short = "Füge Stunden zu einem Stundenplan hinzu."
+class AddLesson(UserCommand):
+    short = "Füge Stunden zu deinem Stundenplan hinzu."
     success = "Stunden wurden erfolgreich deinem Stundenplan hinzugefügt."
-    detail = f"""{short}
+    detail = """Füge Stunden zu deinem Stundenplan hinzu.
 
 Gib folgende Daten an:
 Klasse (bspw.: '05A', '12')
@@ -100,7 +110,7 @@ Raum (bspw.: '1.23')
 
 Du kannst auch mehrere Stunden auf einmal eintragen, indem du jede Stunde in eine neue Zeile schreibst.
 
-/add_lesson 12 Mo 3 Bio Nm2 
+{usage_string} 12 Mo 3 Bio Nm2 
 12 Mo 4 Bio Nm2 
 12 Mo 7-8 Ma 1.46 B 
 12 Mo 7-8 Phy Nm1 A"""
@@ -118,7 +128,7 @@ Du kannst auch mehrere Stunden auf einmal eintragen, indem du jede Stunde in ein
                    "room",
                    "week_type varchar(255) DEFAULT ''"]
         if not str.join(" ", update_text.split(" ")[1:]):
-            return {chat_id: {"text": self.detail}}
+            return {chat_id: {"text": self.detail.replace("{usage_string}", self.usage_string)}}
         db.execute(f"CREATE TABLE IF NOT EXISTS lessons_{chat_id}({str.join(', ', columns)})")
         for line in str.join(" ", update_text.split(" ")[1:]).split("\n"):
             l_ind = 2
@@ -129,7 +139,9 @@ Du kannst auch mehrere Stunden auf einmal eintragen, indem du jede Stunde in ein
                     if x:
                         used_columns.append(columns[i+1].split(" ")[0])
                         used_values.append(f"'{x.title() if i != l_ind else lx.title()}'")
-                cmd = f"INSERT INTO lessons_{chat_id}({str.join(', ', used_columns)}) VALUES({str.join(', ', used_values)});"
+                used_columns_string = str.join(', ', used_columns)
+                used_values_string = str.join(', ', used_values)
+                cmd = f"INSERT INTO lessons_{chat_id}({used_columns_string}) VALUES({used_values_string});"
                 print(cmd)
                 db.execute(cmd)
         db.commit()
@@ -137,7 +149,7 @@ Du kannst auch mehrere Stunden auf einmal eintragen, indem du jede Stunde in ein
         return {chat_id: {"text": str(len(str.join(" ", update_text.split(" ")[1:]).split("\n"))) + " " + self.success}}
 
 
-class ViewLessons:
+class ViewLessons(UserCommand):
     short = "Sieh dir deinen Stundenplan an."
     header = "Hier ist dein Stundenplan:"
 
@@ -153,7 +165,7 @@ class ViewLessons:
         return {chat_id: {"text": msg}}
 
 
-class UpdateLesson:
+class UpdateLesson(UserCommand):
     short = "Experimental: Update a lesson from your timetable."
     success = "Your timetable has been updated."
 
@@ -169,10 +181,10 @@ class UpdateLesson:
         return {chat_id: {"text": self.success}}
 
 
-class RemoveLesson:
+class RemoveLesson(UserCommand):
     short = "Entfernt eine Stunde von deinem Stundenplan."
     detail = """Löscht Einträge von deinem Stundenplan für jede Zahl, die du dahinter schreibst.
-Nutze /view_lessons um die ID der Stunden zu sehen.
+Nutze {usage_string} um die ID der Stunden zu sehen.
 
 bspw.: /remove_lesson 1 5 13"""
     success = """Die Stunden wurden erfolgreich von deinem Stundenplan gelöscht. 
@@ -183,7 +195,7 @@ Nutze /view_lessons um deinen Stundenplan zu überprüfen."""
                  chat_id: int,
                  database_name: str):
         if not str.join(" ", update_text.split(" ")[1:]):
-            return {chat_id: {"text": self.detail}}
+            return {chat_id: {"text": self.detail.replace("{usage_string}", self.usage_string)}}
         db = sqlite3.connect(database_name)
         for lesson_id in update_text.split(" ")[1:]:
             db.execute(f"DELETE FROM lessons_{chat_id} WHERE id={lesson_id};")
@@ -192,17 +204,17 @@ Nutze /view_lessons um deinen Stundenplan zu überprüfen."""
         return {chat_id: {"text": self.success}}
 
 
-class Information:
+class Information(UserCommand):
     short = "Listet deinen Vertretungsplan auf."
     msg = "Für dich relevante Einträge:"
     no_relevants = "Für deinen Stundenplan liegen keine Einträge vor."
+    no_timetable = "Du hast noch keinen Stundenplan eingerichtet."
 
     def __call__(self,
                  update_text,
                  chat_id: int,
                  database_name):
         db = sqlite3.connect(database_name)
-        output = {}
         db_user = [x for x in db.execute(f"SELECT dsb_user, dsb_pswd FROM users WHERE chat_id={chat_id};")][0]
         list_lessons = [[str(y) for y in x] for x in db.execute(f"SELECT * FROM lessons_{chat_id};")]
         print(list_lessons)
@@ -215,7 +227,7 @@ class Information:
             return {chat_id: {"text": self.no_timetable}}
 
 
-class Test:
+class Test(UserCommand):
     short = "Führt alle Tests des Bots durch."
 
     def __call__(self,
@@ -226,7 +238,7 @@ class Test:
         return {chat_id: {'text': "\n".join(Test().run())}}
 
 
-class UserInfo:
+class UserInfo(UserCommand):
     short = "Zeigt die Informationen zu deinem Profil an."
     msg = "Die Folgenden Informationen sind dem Bot über dich bekannt."
 
@@ -241,7 +253,7 @@ class UserInfo:
         return {chat_id: {"text": self.msg + "\n" * 2 + text}}
 
 
-class Support:
+class Support(UserCommand):
     short = "Versendet eine Nachricht an den Support."
 
     def __call__(self,

@@ -134,28 +134,28 @@ def getNews(username, password, doc=None):
     return information
 
 
-def getRelevants(kursliste: object,
-                 username: object = None,
-                 password: object = None,
-                 vertretungs_plan: object = [],
-                 level: object = 0) -> object:
+def getRelevants(kursliste: list,
+                 username: str = None,
+                 password: str = None,
+                 vertretungs_plan: list = [],
+                 level: int = 0) -> list:
     assert kursliste, "Keine Kursliste verfügbar"
     assert (username and password) or vertretungs_plan, "Neither login credentials nor vertretungsplan available."
     if not vertretungs_plan:
-        einträge = vertretungsplan(username, password)
+        eintraege = vertretungsplan(username, password)
     else:
-        einträge = vertretungs_plan
-    relevante_einträge = []
+        eintraege = vertretungs_plan
+    relevante_eintraege = []
     eintrag: []
-    print(f"Einträge({len(einträge)}): {einträge}")
-    for eintrag in einträge:
+    print(f"Einträge({len(eintraege)}): {eintraege}")
+    for eintrag in eintraege:
         for kurs in kursliste:
             for a in kurs:
                 a = a.title()
             try:
                 if len(kurs) == 1:
                     if eintrag[0].lstrip("0").title() == kurs[0].lstrip("0").title():
-                        relevante_einträge.append(eintrag)
+                        relevante_eintraege.append(eintrag)
                 else:
                     match = [False for a in range(6)]
                     if kurs[0].lstrip("0").title() in eintrag[0].lstrip("0").title():  # class
@@ -176,13 +176,13 @@ def getRelevants(kursliste: object,
                         match[5] = True
                     if len([a for a in match if a == True]) >= level:
                         # print(str(eintrag) + " für Kurs " + str(kurs) + " hat " + str(len([a for a in match if a == True])) + " Übereinstimmungen.")
-                        if not eintrag in relevante_einträge:
-                            relevante_einträge.append(eintrag)
+                        if not eintrag in relevante_eintraege:
+                            relevante_eintraege.append(eintrag)
             except KeyError:
                 pass
     # for a in relevante_einträge:
     # print(a[9] + ": " + a[1] + ", " + a[2] + " --> " + a[7])
-    return relevante_einträge
+    return relevante_eintraege
 
 
 if __name__ == "__main__":

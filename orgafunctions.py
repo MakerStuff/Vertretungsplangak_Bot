@@ -21,8 +21,8 @@ def get_support(chat_id: int,
 
 def update_user_profile(chat_id: int,
                         database_name: str,
+                        parameters,
                         **kwargs):
-    parameters = kwargs
     variables = [str.join('=', [x, str(parameters[x])]) for x in parameters]
     columns = str.join(', ', variables)
     db = sqlite3.connect(database_name)

@@ -18,7 +18,11 @@ class DSBBot:
                  database_name: str = ":memory:",
                  updater_use_context=True,
                  **kwargs):
-        self.__dict__.update(kwargs)
+        # apply token
+        self.token = token
+        # set user commands
+        print(kwargs)
+        self.__dict__.update({uc: kwargs[uc](str.join("", uc[3:])) for uc in kwargs})
         self.uc_help = self.Help(parent=self)
         self.updater = Updater(token=token, use_context=updater_use_context)
         # database needs to be sql like
