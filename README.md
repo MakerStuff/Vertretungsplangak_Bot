@@ -18,4 +18,4 @@ Folgende Daten werden erhoben:
 2.  Die Login-Daten für DSBmobile
 3.  Der Stundenplan
 4.  Für besseres Debugging behält sich der Support vor, alle durch Telegram bereitgestellten Daten auszuwerten.
-Alle Daten der ersten 3 Punkte lassen sich ohne Anfrage beim Support mit */cleardata* löschen.
+Alle Daten der ersten 3 Punkte lassen sich ohne Anfrage beim Support mit */delete_profile* löschen.
