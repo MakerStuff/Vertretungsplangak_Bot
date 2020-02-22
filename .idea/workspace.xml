@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="3e7811e6-04a7-4eb1-8931-e8254e1c8891" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usercommands.py" beforeDir="false" afterPath="$PROJECT_DIR$/usercommands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,7 +53,7 @@
       <recent name="C:\Users\user\Documents\Projekte\Vertretungsplangak_Data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.__main__">
+  <component name="RunManager" selected="Python.tests">
     <configuration name="__main__" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Vertretungsplangak_Bot" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -140,8 +140,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.__main__" />
         <item itemvalue="Python.tests" />
+        <item itemvalue="Python.__main__" />
         <item itemvalue="Python.vertretungsplan_bot" />
         <item itemvalue="Python.vertretungsplan" />
         <item itemvalue="Python.vertretungsplan_bot" />
@@ -248,7 +248,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582368912435</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Add hint for support message">
+      <created>1582369222533</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1582369222533</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -273,7 +280,8 @@
     <MESSAGE value="Add detailed description for /&lt;any command&gt; help&#10;Added news for the day to the output of information." />
     <MESSAGE value="Added group capability with multiple bots" />
     <MESSAGE value="Fix issue with get_support()" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix issue with get_support()" />
+    <MESSAGE value="Add hint for support message" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add hint for support message" />
   </component>
   <component name="WindowStateProjectService">
     <state x="98" y="58" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1576763445854">
@@ -288,10 +296,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="314" y="28" width="644" height="743" key="#vertretungsplan_bot/0.28.1280.744@0.28.1280.744" timestamp="1576267241324" />
-    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1582368911532">
+    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1582369222079">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1582368911532" />
+    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1582369222079" />
     <state x="119" y="87" width="1026" height="624" key="DiffContextDialog" timestamp="1576600586175">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -304,22 +312,22 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="326" y="269" width="619" height="261" key="Github.CreatePullRequestDialog/0.28.1280.744@0.28.1280.744" timestamp="1578481144571" />
-    <state width="1257" height="189" key="GridCell.Tab.0.bottom" timestamp="1582369165649">
+    <state width="1257" height="189" key="GridCell.Tab.0.bottom" timestamp="1582369496633">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1582369165649" />
-    <state width="1257" height="189" key="GridCell.Tab.0.center" timestamp="1582369165648">
+    <state width="1257" height="189" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1582369496633" />
+    <state width="1257" height="189" key="GridCell.Tab.0.center" timestamp="1582369496633">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1582369165648" />
-    <state width="1257" height="189" key="GridCell.Tab.0.left" timestamp="1582369165647">
+    <state width="1257" height="189" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1582369496633" />
+    <state width="1257" height="189" key="GridCell.Tab.0.left" timestamp="1582369496632">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1582369165647" />
-    <state width="1257" height="189" key="GridCell.Tab.0.right" timestamp="1582369165648">
+    <state width="1257" height="189" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1582369496632" />
+    <state width="1257" height="189" key="GridCell.Tab.0.right" timestamp="1582369496633">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1582369165648" />
+    <state width="1257" height="189" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1582369496633" />
     <state x="172" y="96" width="893" height="563" key="MultipleFileMergeDialog" timestamp="1581615389247">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -328,10 +336,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="129" y="35" key="SettingsEditor/0.28.1280.744@0.28.1280.744" timestamp="1578324236380" />
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1582368918479">
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1582369227885">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1582368918479" />
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1582369227885" />
     <state x="296" y="227" key="com.intellij.ide.util.TipDialog" timestamp="1582313772409">
       <screen x="0" y="28" width="1280" height="744" />
     </state>

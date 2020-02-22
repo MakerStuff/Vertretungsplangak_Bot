@@ -41,18 +41,11 @@ class Test:
         else:
             yield "\nThere were no tests encountering any errors. Add more tests to make sure your code works."
 
-    def test_functions(self):
-        bot = DSBBot(token=json.loads(open("../Vertretungsplangak_Data/general_information.json").read())["token"],
-                     database_name=self.database_name,
-                     uc_test=DummyFunction)
-        assert bot.run_command("/test", 0, ":memory:") == {0: {"text": "test"}}, \
-            "Calling functions of a bot does not work."
-
     def test_functions_with_underscore_in_name(self):
         bot = DSBBot(token=json.loads(open("../Vertretungsplangak_Data/general_information.json").read())["token"],
                      database_name=self.database_name,
-                     uc_test_something=DummyFunction)
-        assert bot.uc_test_something("", 0, "") == {0: {"text": "test"}}, \
+                     uc_test_it=DummyFunction)
+        assert bot.uc_test_it("/test_it help", 0, self.database_name) == {0: {"text": DummyFunction.detail}}, \
             "Having underscores in function names raises error."
 
     def test_get_support(self):
