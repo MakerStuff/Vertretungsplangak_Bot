@@ -304,10 +304,12 @@ class Support(UserCommand):
 Bisher ist keine Funktion implementiert, die es dem Support erlaubt, zu antworten. Drücke dich also präzise aus.
 
 bspw.: {usage_string} Hallo Welt!"""
+    success = "Dein Anliegen wurde an den Support versendet."
 
     def main(self,
              update_text: str,
              chat_id: int,
              database_name: str):
         if str.join(", ", update_text.split(" ")):
-            return {get_support(chat_id, database_name): {"text": " ".join(update_text.split(" ")[1:])}}
+            return {chat_id: {"text": self.success},
+                    get_support(chat_id, database_name): {"text": "Support: " + " ".join(update_text.split(" ")[1:])}}
