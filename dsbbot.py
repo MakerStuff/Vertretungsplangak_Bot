@@ -34,7 +34,7 @@ class DSBBot:
         self.updater.dispatcher.add_error_handler(self.Error(self))
 
     def execute_user_command(self, update, context, do_send=True):
-        command_list = [str.join("", cmd[3:]) for cmd in self.__dir__() if cmd.startswith("uc_")]
+        command_list = [str.join("", cmd[3:]).split("@")[0] for cmd in self.__dir__() if cmd.startswith("uc_")]
         cmd = update.message.text.split(" ")[0].lstrip("/").split("@")[0]
         if cmd in command_list:
             result = self.run_command(update_text=update.message.text,
@@ -55,7 +55,7 @@ class DSBBot:
                     update_text: str,
                     chat_id: int,
                     database_name: str):
-        function = self.__getattribute__(f"uc_{str.join('', update_text.split(' ')[0][1:])}")
+        function = self.__getattribute__(f"uc_{str.join('', update_text.split(' ')[0][1:]).split('@')[0]}")
         return function(update_text=update_text,
                         chat_id=chat_id,
                         database_name=database_name)
