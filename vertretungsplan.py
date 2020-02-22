@@ -1,6 +1,7 @@
 import datetime
 import json
 import time
+from typing import *
 
 import base64
 import gzip
@@ -119,7 +120,9 @@ def getURL(username, password, tries=5, location="../Vertretungsplangak_Data/"):
         raise Exception(f"No login method worked properly after {tries} tries")
 
 
-def getNews(username, password, doc=None):
+def getNews(username: Optional[str] = None,
+            password: Optional[str] = None,
+            doc: Optional = None):
     if not doc:
         doc = getDoc(username, password)
     information = []

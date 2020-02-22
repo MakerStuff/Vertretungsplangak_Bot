@@ -2,13 +2,17 @@
 Diese Repository beinhaltet den Code für den [Vertretungsplangak_Bot auf Telegram](https://t.me/vertretungsplangak_bot).
 
 ## Für wen ist der Vertretungsplangak_Bot
-Dieser inoffizielle Bot wurde für das [Gymnasium am Kattenberge](http://www.gak-buchholz.de/) erstellt. Die Login-Daten lassen sich ändern. Unterstützung für andere Schulen wird allerdings nicht garantiert.
+Dieser inoffizielle Bot wurde für das [Gymnasium am Kattenberge](http://www.gak-buchholz.de/) erstellt. 
+Er liest den Vertretungsplan aus und sucht dir deine relevanten Einträge heraus.
+Die Login-Daten lassen sich für andere Schulen anpassen. 
+Unterstützung für andere Schulen wird allerdings nicht garantiert.
 
 ## Nutzung
-Der Vertretungsplangak_Bot ist selbsterklärend. Der Anfang sollte mit */help* gemacht werden.
+Der Vertretungsplangak_Bot ist selbsterklärend. 
+Der Anfang sollte mit */help* gemacht werden.
 
 ## Wo kann ich Hilfe bekommen?
-Für komplizierte Befehle besteht meistens die Möglichkeit, weitere Hilfe anzeigen zu lassen. Hierzu wird folgende Systax benötigt: */**Befehl** help*
+Folgendes Feature wird in der aktuellen Version nicht unterstützt, jedoch in naher Zukunft wieder eingeführt:Für komplizierte Befehle besteht meistens die Möglichkeit, weitere Hilfe anzeigen zu lassen. Hierzu wird folgende Systax benötigt: */**Befehl** help*
 
 Der Bot bietet mit */support* die Möglichkeit, eine Nachricht an den Gruppenchat des Support-Teams zu schreiben.
 
