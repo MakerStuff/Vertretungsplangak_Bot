@@ -6,13 +6,7 @@ from telegram.error import BadRequest
 from orgafunctions import get_support
 
 
-class DSBBot:
-    columns = ["chat_id INTEGER PRIMARY KEY",
-               "dsb_user TEXT DEFAULT '213061'",
-               "dsb_pswd TEXT DEFAULT 'dsbgak'",
-               "last_notification TEXT",
-               "support INTEGER DEFAULT 0"]
-
+class TelegramBot:
     def __init__(self,
                  token,
                  database_name: str = ":memory:",
@@ -29,7 +23,7 @@ class DSBBot:
         database = sqlite3.connect(self.database_name)
         database.execute(f"CREATE TABLE IF NOT EXISTS users({str.join(', ', self.columns)})")
         database.commit()
-        # create table for 
+        # create table for
         self.updater.dispatcher.add_handler(MessageHandler(None, self.execute_user_command))
         self.updater.dispatcher.add_error_handler(self.Error(self))
 
@@ -93,3 +87,11 @@ class DSBBot:
     def run(self):
         self.updater.start_polling()
         self.updater.idle()
+
+
+class DSBBot(TelegramBot):
+    columns = ["chat_id INTEGER PRIMARY KEY",
+               "dsb_user TEXT DEFAULT '213061'",
+               "dsb_pswd TEXT DEFAULT 'dsbgak'",
+               "last_notification TEXT",
+               "support INTEGER DEFAULT 0"]
