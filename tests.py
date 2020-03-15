@@ -1,12 +1,16 @@
-import builtins
+# coding: utf-8
+
 import json
 import os
-import requests, urllib3, socket
 
-from dsbbot import DSBBot
+import requests
+import socket
+import urllib3
+
 import orgafunctions
 import usercommands
 import vertretungsplan
+from dsbbot import DSBBot
 
 
 class DummyFunction(usercommands.UserCommand):

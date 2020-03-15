@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import sqlite3
 
 from telegram.ext import Updater, MessageHandler

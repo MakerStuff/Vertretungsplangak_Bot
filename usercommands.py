@@ -1,3 +1,5 @@
+# coding: uft-8
+
 import vertretungsplan
 import sqlite3
 from dsbbot import DSBBot, UserCommand
