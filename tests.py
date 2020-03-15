@@ -194,9 +194,10 @@ class Test:
                          uc_information=usercommands.Information)
         chat_id = 0
         dsb_bot.run_command("/register", chat_id, self.database_name)
-        dsb_bot.run_command("/add_lesson 05A Mo 1 Deu 1.23", chat_id=chat_id, database_name=self.database_name)
+        dsb_bot.run_command("/add_lesson 05A Montag 1 Deu 1.23", chat_id=chat_id, database_name=self.database_name)
         result = dsb_bot.run_command("/information", chat_id=chat_id, database_name=self.database_name)
-        print(result)
+        assert dsb_bot.uc_information.no_relevants in result[chat_id]["text"]
+        # TODO This test gatheres data from 21301/dsbgak to test if lessons are detected
 
 
 if __name__ == "__main__":

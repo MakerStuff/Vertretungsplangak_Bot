@@ -4,16 +4,10 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e7811e6-04a7-4eb1-8931-e8254e1c8891" name="Default Changelist" comment="Add option to log in to dsbapi with different login credentials.&#10;Add some compliance for PEP8.&#10;Add ChatAction typing for all messages.&#10;Add classes for Vertretung, Lesson, Vertretungsplanliste&#10;Add more tests&#10;Add some comments">
+    <list default="true" id="3e7811e6-04a7-4eb1-8931-e8254e1c8891" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dsbapi/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbapi/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dsbapi/dsbsession_android.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbapi/dsbsession_android.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dsbapi/dsbsession_web.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbapi/dsbsession_web.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dsbbot.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbbot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orgafunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/orgafunctions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/usercommands.py" beforeDir="false" afterPath="$PROJECT_DIR$/usercommands.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vertretungsplan.py" beforeDir="false" afterPath="$PROJECT_DIR$/vertretungsplan.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +54,7 @@
       <recent name="C:\Users\user\Documents\Projekte\Vertretungsplangak_Data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.__main__">
+  <component name="RunManager" selected="Python.tests">
     <configuration name="__main__" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Vertretungsplangak_Bot" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -131,8 +125,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.__main__" />
         <item itemvalue="Python.tests" />
+        <item itemvalue="Python.__main__" />
         <item itemvalue="Python.vertretungsplan" />
       </list>
     </recent_temporary>
@@ -251,7 +245,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582369513032</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Add option to log in to dsbapi with different login credentials.&#10;Add some compliance for PEP8.&#10;Add ChatAction typing for all messages.&#10;Add classes for Vertretung, Lesson, Vertretungsplanliste&#10;Add more tests&#10;Add some comments">
+      <created>1584266434737</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1584266434737</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -294,10 +295,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="314" y="28" width="644" height="743" key="#vertretungsplan_bot/0.28.1280.744@0.28.1280.744" timestamp="1576267241324" />
-    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1584266410433">
+    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1584266434309">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1584266410433" />
+    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1584266434309" />
     <state x="119" y="87" width="1026" height="624" key="DiffContextDialog" timestamp="1576600586175">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -310,22 +311,22 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="326" y="269" width="619" height="261" key="Github.CreatePullRequestDialog/0.28.1280.744@0.28.1280.744" timestamp="1578481144571" />
-    <state width="1257" height="158" key="GridCell.Tab.0.bottom" timestamp="1584266410514">
+    <state width="1257" height="158" key="GridCell.Tab.0.bottom" timestamp="1584266790709">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="158" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1584266410514" />
-    <state width="1257" height="158" key="GridCell.Tab.0.center" timestamp="1584266410513">
+    <state width="1257" height="158" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1584266790709" />
+    <state width="1257" height="158" key="GridCell.Tab.0.center" timestamp="1584266790699">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="158" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1584266410513" />
-    <state width="1257" height="158" key="GridCell.Tab.0.left" timestamp="1584266410513">
+    <state width="1257" height="158" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1584266790699" />
+    <state width="1257" height="158" key="GridCell.Tab.0.left" timestamp="1584266790697">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="158" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1584266410513" />
-    <state width="1257" height="158" key="GridCell.Tab.0.right" timestamp="1584266410514">
+    <state width="1257" height="158" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1584266790697" />
+    <state width="1257" height="158" key="GridCell.Tab.0.right" timestamp="1584266790707">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="158" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1584266410514" />
+    <state width="1257" height="158" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1584266790707" />
     <state x="172" y="96" width="893" height="563" key="MultipleFileMergeDialog" timestamp="1581615389247">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -334,10 +335,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="129" y="35" key="SettingsEditor/0.28.1280.744@0.28.1280.744" timestamp="1578324236380" />
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1582369552499">
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1584266453523">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1582369552499" />
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1584266453523" />
     <state x="296" y="227" key="com.intellij.ide.util.TipDialog" timestamp="1584175439114">
       <screen x="0" y="28" width="1280" height="744" />
     </state>

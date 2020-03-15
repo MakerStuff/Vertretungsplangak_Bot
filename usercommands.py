@@ -255,6 +255,9 @@ class Information(UserCommand):
         text_mft = str.join('\n', news_for_today) or self.no_news_for_today
         output[chat_id]["text"] = output[chat_id]["text"] + "\n" + str.join("\n", [self.msg_news_for_today,
                                                                                    text_mft])
+        db.execute(f"UPDATE users SET last_notification='{output[chat_id]['text']}'".replace("-", "u"))
+        db.commit()
+        db.close()
         return output
 
 
