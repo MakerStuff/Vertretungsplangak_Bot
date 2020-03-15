@@ -7,6 +7,7 @@ DATA_URLS = [ # Liste von möglichen URLs (DSB ändert die gültige aus irgendei
 	"https://www.dsbmobile.de/jhw-ecd92528-a4b9-425f-89ee-c7038c72b9a6.ashx/GetData",
 ]
 
+
 class DSBSession:
 	session = None
 	

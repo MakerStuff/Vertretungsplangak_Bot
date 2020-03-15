@@ -31,3 +31,10 @@ def update_user_profile(chat_id: int,
     db.execute(f"UPDATE users SET {columns} WHERE chat_id={chat_id};")
     db.commit()
     db.close()
+
+
+def vertretung_to_lesson(vertretung: List[str]) -> List[str]:
+    return [vertretung[0],
+            vertretung[1],
+            vertretung[3],
+            vertretung[5]]

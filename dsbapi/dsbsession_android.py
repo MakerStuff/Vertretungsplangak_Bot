@@ -3,8 +3,9 @@ from bs4 import BeautifulSoup
 
 DATA_URL = "https://app.dsbcontrol.de/JsonHandler.ashx/GetData"
 
+
 class DSBSession:
-	# Sends a data request to the server.
+    # Sends a data request to the server.
     # Returns the URL to the timetable HTML page
     def fetch_data_json(username, password):
         # Iso format is for example 2019-10-29T19:20:31.875466

@@ -1,44 +1,8 @@
 import vertretungsplan
 import sqlite3
-from dsbbot import DSBBot
+from dsbbot import DSBBot, UserCommand
 
 from orgafunctions import update_user_profile, get_support
-
-
-class UserCommand:
-    # usage_string represents the string a user has to enter to access that command eg.: /help
-    usage_string = "/"
-    no_main_function = "Für diesen Befehl wurde noch keine Funktion hinterlegt."
-    no_detail_desc = "Für diesen Befehl wurde noch keine detaillierte Beschreibung hinterlegt."
-
-    def __init__(self, string: str):
-        if not string.startswith("/"):
-            string = "/" + string
-        self.usage_string = string
-        self.detail = self.detail.replace("{usage_string}", self.usage_string)
-
-    def __repr__(self):
-        return "user command \"" + self.usage_string + "\""
-
-    def __call__(self,
-                 update_text: str,
-                 chat_id: int,
-                 database_name: str,
-                 *args, **kwargs):
-        if str.join(" ", update_text.split(" ")[1:]) == "help":
-            try:
-                return {chat_id: {"text": self.detail}}
-            except AttributeError:
-                return {chat_id: {"text": self.no_detail_desc},
-                        get_support(chat_id, database_name): {"text": self.usage_string + ": " + self.no_detail_desc}}
-        else:
-            try:
-                return self.main(update_text=update_text,
-                                 chat_id=chat_id,
-                                 database_name=database_name)
-            except AttributeError:
-                return {chat_id: {"text": self.no_main_function},
-                        get_support(chat_id, database_name): {"text": self.usage_string + ": " + self.no_main_function}}
 
 
 class Start(UserCommand):
@@ -65,6 +29,9 @@ class Register(UserCommand):
              chat_id: int,
              database_name: str):
         db = sqlite3.connect(database_name)
+        # Prepare database if it does not exist
+        # db.execute(f"CREATE TABLE IF NOT EXISTS users({', '.join([x.split()[0] for x in DSBBot.columns])})")
+        # Store user data
         kwargs = {a.split("=")[0]: a.split("=")[1] for a in update_text.split(" ")[1:]
                   if len(a.split("=")) == 2
                   and not (a.startswith("=") or a.endswith("="))}
@@ -75,7 +42,15 @@ class Register(UserCommand):
             db.execute(f"INSERT INTO users({columns}) VALUES({values});")
         except sqlite3.IntegrityError:
             return {chat_id: {"text": self.already_registered}}
+
+        # Create lessons table
+        columns = DSBBot.columns_timetable
+        columns_str = str.join(', ', columns)
+        cmd = f"CREATE TABLE IF NOT EXISTS lessons_{chat_id}({columns_str});".replace("-", "u")
+        db.execute(cmd)
         db.commit()
+
+        # Set a supporter
         get_support(chat_id, database_name)
         db.close()
         return {chat_id: {"text": self.success}}
@@ -119,7 +94,7 @@ bspw.: {usage_string} ja wirklich"""
             # Delete from users table
             db.execute(f"DELETE FROM users WHERE chat_id={chat_id};")
             # Delete individual timetable table
-            db.execute(f"DROP TABLE lessons_{chat_id};")
+            db.execute(f"DROP TABLE lessons_{chat_id};".replace("-", "u"))
             db.commit()
             db.close()
             return {chat_id: {"text": self.success}}
@@ -134,11 +109,11 @@ class AddLesson(UserCommand):
 
 Gib folgende Daten an:
 Klasse (bspw.: '05A', '12')
-Wochentag (bspw.: 'Mo')
+Wochentag (bspw.: 'Montag')
 Stunde (bspw.: '1', '1-2')
 Fach (bspw.: 'Deu')
 Raum (bspw.: '1.23')
-[Optional:] Wochentyp (bspw.: 'A')
+[Optional:] Wochentyp (bspw.: 'A', 'B')
 
 Du kannst auch mehrere Stunden auf einmal eintragen, indem du jede Stunde in eine neue Zeile schreibst.
 
@@ -152,28 +127,24 @@ Du kannst auch mehrere Stunden auf einmal eintragen, indem du jede Stunde in ein
              chat_id: int,
              database_name: str):
         db = sqlite3.connect(database_name)
-        columns = ["id INTEGER PRIMARY KEY AUTOINCREMENT",
-                   "class",
-                   "day",
-                   "lesson",
-                   "subject",
-                   "room",
-                   "week_type varchar(255) DEFAULT ''"]
-        if not str.join(" ", update_text.split(" ")[1:]):
-            return {chat_id: {"text": self.detail.replace("{usage_string}", self.usage_string)}}
-        db.execute(f"CREATE TABLE IF NOT EXISTS lessons_{chat_id}({str.join(', ', columns)})")
+        parameters = update_text.split(" ")[1:]
+        if not parameters:
+            return self.help(update_text=update_text,
+                             chat_id=chat_id,
+                             database_name=database_name)
+        columns = DSBBot.columns_timetable
         for line in str.join(" ", update_text.split(" ")[1:]).split("\n"):
-            l_ind = 2
-            for lx in line.split(" ")[l_ind].split("-"):
-                used_columns = []
-                used_values = []
-                for i, x in enumerate(line.split(" ")):
-                    if x:
-                        used_columns.append(columns[i+1].split(" ")[0])
-                        used_values.append(f"'{x.title() if i != l_ind else lx.title()}'")
-                used_columns_string = str.join(', ', used_columns)
-                used_values_string = str.join(', ', used_values)
-                cmd = f"INSERT INTO lessons_{chat_id}({used_columns_string}) VALUES({used_values_string});"
+            used_values = line.split(" ")
+            while len(used_values) < len(columns) - 1:
+                used_values.append("")
+            used_column = [x.split()[0] for x in columns[:-1]]
+            while len(used_column) < len(columns) - 1:
+                used_column.append("")
+            for lesson in used_values[2].split("-"):
+                used_values[2] = lesson
+                used_values_str = ", ".join(["'" + str(x) + "'" for x in used_values])
+                used_column_str = ", ".join(["'" + str(x) + "'" for x in used_column])
+                cmd = f"INSERT INTO lessons_{chat_id}({used_column_str}) VALUES({used_values_str});".replace("-", "u")
                 db.execute(cmd)
         db.commit()
         db.close()
@@ -191,9 +162,10 @@ class ViewLessons(UserCommand):
              database_name: str):
         msg = self.header + "\n" * 2
         db = sqlite3.connect(database_name)
-        lessons = [x for x in db.execute(f"SELECT * FROM lessons_{chat_id};")]
+        lessons = [x for x in db.execute(f"SELECT * FROM lessons_{chat_id};".replace("-", "u"))]
         msg = msg + str.join("\n", [str.join(" ", [str(y) for y in x if y is not None])
                                     for x in lessons])
+        db.close()
         return {chat_id: {"text": msg}}
 
 
@@ -211,6 +183,7 @@ eg.: {usage_string} 1 room='1.23' subject='Bio'"""
         db = sqlite3.connect(database_name)
         for line in str.join(" ", update_text.split(" ")[1:]).split("\n"):
             cmd = f"UPDATE lessons_{chat_id} SET {str.join(', ', line.split(' ')[1:])} WHERE id={line.split(' ')[0]};"
+            cmd = cmd.replace("-", "u")
             db.execute(cmd)
         return {chat_id: {"text": self.success}}
 
@@ -232,7 +205,7 @@ Nutze /view_lessons um deinen Stundenplan zu überprüfen."""
             return {chat_id: {"text": self.detail.replace("{usage_string}", self.usage_string)}}
         db = sqlite3.connect(database_name)
         for lesson_id in update_text.split(" ")[1:]:
-            db.execute(f"DELETE FROM lessons_{chat_id} WHERE id={lesson_id};")
+            db.execute(f"DELETE FROM lessons_{chat_id} WHERE id={lesson_id};".replace("-", "u"))
         db.commit()
         db.close()
         return {chat_id: {"text": self.success}}
@@ -251,23 +224,38 @@ class Information(UserCommand):
              update_text,
              chat_id: int,
              database_name):
+        output = {chat_id: {"text": ""}}
         db = sqlite3.connect(database_name)
         db_user = [x for x in db.execute(f"SELECT dsb_user, dsb_pswd FROM users WHERE chat_id={chat_id};")][0]
-        list_lessons = [[str(y) for y in x] for x in db.execute(f"SELECT * FROM lessons_{chat_id};")]
+        columns = [x.split()[0] for x in DSBBot.columns_timetable[:-1]]
+        list_lessons = [vertretungsplan.Lesson('').from_list([str(y) for y in x])
+                        for x in db.execute(f"SELECT {', '.join(columns)} FROM lessons_{chat_id};".replace("-", "u"))]
+        week_day_abbreviations = {"Mo": "Montag",
+                                  "Di": "Dienstag",
+                                  "Mi": "Mittwoch",
+                                  "Do": "Donnerstag",
+                                  "Fr": "Freitag"}
+        for abbr in week_day_abbreviations:
+            for lesson in list_lessons:
+                lesson.week_day = lesson.week_day.replace(abbr, week_day_abbreviations[abbr])
+        username = db_user[0]
+        password = db_user[1]
+        url = vertretungsplan.get_url(username=username,
+                                      password=password)
+        doc = vertretungsplan.get_doc(url=url)
         if list_lessons:
-            relevant_entries = vertretungsplan.getRelevants(list_lessons, db_user[0], db_user[1])
-            print(relevant_entries)
-            news_for_today = [str.join(": ", [d, t]) for d, t in vertretungsplan.getNews(db_user[0], db_user[1])]
-            print(news_for_today)
+            vertretungen = vertretungsplan.vertretungsplan(doc=doc)
+            relevant_entries = vertretungsplan.get_relevant(kursliste=list_lessons,
+                                                            vertretungs_plan=vertretungen)
             text_rel = str.join('\n', [str.join(" ", e) for e in relevant_entries]) or self.no_relevants
-            text_mft = str.join('\n', news_for_today) or self.no_news_for_today
-            return {chat_id: {"text": str.join("\n", [self.msg_relevant,
-                                                      text_rel,
-                                                      '',
-                                                      self.msg_news_for_today,
-                                                      text_mft])}}
+            output[chat_id]["text"] = output[chat_id]["text"] + "\n" + text_rel
         else:
-            return {chat_id: {"text": self.no_timetable}}
+            output[chat_id]["text"] = output[chat_id]["text"] + "\n" + self.no_timetable
+        news_for_today = [str.join(": ", [d, t]) for d, t in vertretungsplan.get_news(doc=doc)]
+        text_mft = str.join('\n', news_for_today) or self.no_news_for_today
+        output[chat_id]["text"] = output[chat_id]["text"] + "\n" + str.join("\n", [self.msg_news_for_today,
+                                                                                   text_mft])
+        return output
 
 
 class Test(UserCommand):

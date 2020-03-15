@@ -4,9 +4,16 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e7811e6-04a7-4eb1-8931-e8254e1c8891" name="Default Changelist" comment="">
+    <list default="true" id="3e7811e6-04a7-4eb1-8931-e8254e1c8891" name="Default Changelist" comment="Add option to log in to dsbapi with different login credentials.&#10;Add some compliance for PEP8.&#10;Add ChatAction typing for all messages.&#10;Add classes for Vertretung, Lesson, Vertretungsplanliste&#10;Add more tests&#10;Add some comments">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dsbapi/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbapi/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dsbapi/dsbsession_android.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbapi/dsbsession_android.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dsbapi/dsbsession_web.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbapi/dsbsession_web.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dsbbot.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbbot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orgafunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/orgafunctions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/usercommands.py" beforeDir="false" afterPath="$PROJECT_DIR$/usercommands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vertretungsplan.py" beforeDir="false" afterPath="$PROJECT_DIR$/vertretungsplan.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,7 +60,7 @@
       <recent name="C:\Users\user\Documents\Projekte\Vertretungsplangak_Data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.tests">
+  <component name="RunManager" selected="Python.__main__">
     <configuration name="__main__" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Vertretungsplangak_Bot" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -117,34 +124,16 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="vertretungsplan_bot" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Vertretungsplangak_Bot" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/vertretungsplan_bot.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+    <list>
+      <item itemvalue="Python.__main__" />
+      <item itemvalue="Python.tests" />
+      <item itemvalue="Python.vertretungsplan" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.tests" />
         <item itemvalue="Python.__main__" />
-        <item itemvalue="Python.vertretungsplan_bot" />
+        <item itemvalue="Python.tests" />
         <item itemvalue="Python.vertretungsplan" />
-        <item itemvalue="Python.vertretungsplan_bot" />
       </list>
     </recent_temporary>
   </component>
@@ -255,7 +244,14 @@
       <option name="project" value="LOCAL" />
       <updated>1582369222533</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Fixed tests.py">
+      <created>1582369513032</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1582369513032</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -281,13 +277,15 @@
     <MESSAGE value="Added group capability with multiple bots" />
     <MESSAGE value="Fix issue with get_support()" />
     <MESSAGE value="Add hint for support message" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add hint for support message" />
+    <MESSAGE value="Fixed tests.py" />
+    <MESSAGE value="Add option to log in to dsbapi with different login credentials.&#10;Add some compliance for PEP8.&#10;Add ChatAction typing for all messages.&#10;Add classes for Vertretung, Lesson, Vertretungsplanliste&#10;Add more tests&#10;Add some comments" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add option to log in to dsbapi with different login credentials.&#10;Add some compliance for PEP8.&#10;Add ChatAction typing for all messages.&#10;Add classes for Vertretung, Lesson, Vertretungsplanliste&#10;Add more tests&#10;Add some comments" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="98" y="58" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1576763445854">
+    <state x="98" y="58" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1584177200092">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="98" y="58" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.28.1280.744@0.28.1280.744" timestamp="1576763445854" />
+    <state x="98" y="58" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.28.1280.744@0.28.1280.744" timestamp="1584177200092" />
     <state x="180" y="28" width="904" height="743" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1581629677523">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -296,38 +294,38 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="314" y="28" width="644" height="743" key="#vertretungsplan_bot/0.28.1280.744@0.28.1280.744" timestamp="1576267241324" />
-    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1582369222079">
+    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1584266410433">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1582369222079" />
+    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1584266410433" />
     <state x="119" y="87" width="1026" height="624" key="DiffContextDialog" timestamp="1576600586175">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="119" y="87" width="1026" height="624" key="DiffContextDialog/0.28.1280.744@0.28.1280.744" timestamp="1576600586175" />
-    <state x="423" y="158" width="426" height="483" key="FileChooserDialogImpl" timestamp="1578324270167">
+    <state x="423" y="158" width="426" height="483" key="FileChooserDialogImpl" timestamp="1584175474168">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="423" y="158" width="426" height="483" key="FileChooserDialogImpl/0.28.1280.744@0.28.1280.744" timestamp="1578324270167" />
+    <state x="423" y="158" width="426" height="483" key="FileChooserDialogImpl/0.28.1280.744@0.28.1280.744" timestamp="1584175474168" />
     <state x="326" y="269" width="619" height="261" key="Github.CreatePullRequestDialog" timestamp="1578481144571">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="326" y="269" width="619" height="261" key="Github.CreatePullRequestDialog/0.28.1280.744@0.28.1280.744" timestamp="1578481144571" />
-    <state width="1257" height="189" key="GridCell.Tab.0.bottom" timestamp="1582369496633">
+    <state width="1257" height="158" key="GridCell.Tab.0.bottom" timestamp="1584266410514">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1582369496633" />
-    <state width="1257" height="189" key="GridCell.Tab.0.center" timestamp="1582369496633">
+    <state width="1257" height="158" key="GridCell.Tab.0.bottom/0.28.1280.744@0.28.1280.744" timestamp="1584266410514" />
+    <state width="1257" height="158" key="GridCell.Tab.0.center" timestamp="1584266410513">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1582369496633" />
-    <state width="1257" height="189" key="GridCell.Tab.0.left" timestamp="1582369496632">
+    <state width="1257" height="158" key="GridCell.Tab.0.center/0.28.1280.744@0.28.1280.744" timestamp="1584266410513" />
+    <state width="1257" height="158" key="GridCell.Tab.0.left" timestamp="1584266410513">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1582369496632" />
-    <state width="1257" height="189" key="GridCell.Tab.0.right" timestamp="1582369496633">
+    <state width="1257" height="158" key="GridCell.Tab.0.left/0.28.1280.744@0.28.1280.744" timestamp="1584266410513" />
+    <state width="1257" height="158" key="GridCell.Tab.0.right" timestamp="1584266410514">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state width="1257" height="189" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1582369496633" />
+    <state width="1257" height="158" key="GridCell.Tab.0.right/0.28.1280.744@0.28.1280.744" timestamp="1584266410514" />
     <state x="172" y="96" width="893" height="563" key="MultipleFileMergeDialog" timestamp="1581615389247">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -336,14 +334,14 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="129" y="35" key="SettingsEditor/0.28.1280.744@0.28.1280.744" timestamp="1578324236380" />
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1582369227885">
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1582369552499">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1582369227885" />
-    <state x="296" y="227" key="com.intellij.ide.util.TipDialog" timestamp="1582313772409">
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1582369552499" />
+    <state x="296" y="227" key="com.intellij.ide.util.TipDialog" timestamp="1584175439114">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="296" y="227" key="com.intellij.ide.util.TipDialog/0.28.1280.744@0.28.1280.744" timestamp="1582313772409" />
+    <state x="296" y="227" key="com.intellij.ide.util.TipDialog/0.28.1280.744@0.28.1280.744" timestamp="1584175439114" />
     <state x="300" y="268" width="672" height="264" key="git4idea.rebase.GitRebaseDialog" timestamp="1578473267267">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -356,9 +354,9 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="181" y="250" width="909" height="299" key="git4idea.ui.GitUnstashDialog/0.28.1280.744@0.28.1280.744" timestamp="1581615389445" />
-    <state x="303" y="93" width="672" height="678" key="search.everywhere.popup" timestamp="1582016297386">
+    <state x="303" y="93" width="672" height="678" key="search.everywhere.popup" timestamp="1584202216993">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="303" y="93" width="672" height="678" key="search.everywhere.popup/0.28.1280.744@0.28.1280.744" timestamp="1582016297386" />
+    <state x="303" y="93" width="672" height="678" key="search.everywhere.popup/0.28.1280.744@0.28.1280.744" timestamp="1584202216993" />
   </component>
 </project>
