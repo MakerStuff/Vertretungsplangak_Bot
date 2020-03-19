@@ -257,7 +257,7 @@ def get_relevant(kursliste: list,
                  username: Optional[str] = None,
                  password: Optional[str] = None,
                  vertretungs_plan: Optional[Vertretungsplanliste] = None) -> list:
-    assert kursliste, "Keine Kursliste verfügbar oder Kursliste leer"
+    assert kursliste, "Keine Kursliste verfuegbar oder Kursliste leer"
     assert (username and password) or vertretungs_plan, "Neither login credentials nor vertretungsplan available."
     if not vertretungs_plan:
         vertretungs_plan = vertretungsplan(username, password)
@@ -280,7 +280,7 @@ def main():
                       password=password)
         doc = get_doc(url=url)
         print(
-            "Der Autor dieser Software übernimmt keine Garantie für ihr richtiges Verhalten. Es bestehen keine Ansprüche auf Behebung eventueller Fehler oder sonstige Dienstleistungen. Der Autor übernimmt keine Haftung für den Inhalt der dargestellten Informationen.")
+            "Der Autor dieser Software uebernimmt keine Garantie fuer ihr richtiges Verhalten. Es bestehen keine Ansprueche auf Behebung eventueller Fehler oder sonstige Dienstleistungen. Der Autor uebernimmt keine Haftung fuer den Inhalt der dargestellten Informationen.")
         for a in get_news(doc=doc):
             print(a[0] + ": " + a[1])
         try:
@@ -298,7 +298,7 @@ def main():
                 # 7: Art
                 # 8: Text
                 # 9: Datum
-                # 10: Übereinstimmungslevel
+                # 10: uebereinstimmungslevel
                 print(str([a for a in wday if wday[a] == time.gmtime(
                     datetime.datetime.strptime(eintrag[9], '%d.%m.%Y').timestamp() - time.altzone).tm_wday][
                               0].capitalize()) + " " + eintrag[9] + " " + eintrag[1] + ": " + eintrag[0] + " " +
@@ -307,12 +307,12 @@ def main():
                       + " in Raum " * bool(len(eintrag[4])) + eintrag[4]
                       + ". Beschreibung: " * bool(len(eintrag[8])) + eintrag[8]
                       + ". Vertretung von " * bool(len(eintrag[6])) + eintrag[6])
-            print(f"{len(kursliste)} Kurse wurden überprüft.")
+            print(f"{len(kursliste)} Kurse wurden ueberprueft.")
         except FileNotFoundError:
             print("Es liegt keine Kursliste vor.")
-        print("\nDie Informationen sollten auf " + url + " überprüft werden!")
+        print("\nDie Informationen sollten auf " + url + " ueberprueft werden!")
     except requests.exceptions.ConnectionError:
-        print("Keine Verbindung möglich. Bitte überprüfe deine Internetverbindung.")
+        print("Keine Verbindung moeglich. Bitte ueberpruefe deine Internetverbindung.")
     input("Press Enter to continue...")
 
 

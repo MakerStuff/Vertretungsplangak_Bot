@@ -177,7 +177,7 @@ class Test:
             assert kursliste != [], "Kursliste ist leer"
             rel = vertretungsplan.get_relevant(kursliste=kursliste,
                                                vertretungs_plan=vertretungen)
-            assert kursliste[0] in rel, "Kurs nicht unter relevanten Einträgen"
+            assert kursliste[0] in rel, "Kurs nicht unter relevanten Eintraegen"
         except requests.exceptions.ConnectionError:
             print("WARNING: Aborted due to network connection error.")
         except urllib3.exceptions.MaxRetryError:

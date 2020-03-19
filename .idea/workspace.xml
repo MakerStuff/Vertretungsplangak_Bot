@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3e7811e6-04a7-4eb1-8931-e8254e1c8891" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dsbbot.py" beforeDir="false" afterPath="$PROJECT_DIR$/dsbbot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usercommands.py" beforeDir="false" afterPath="$PROJECT_DIR$/usercommands.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vertretungsplan.py" beforeDir="false" afterPath="$PROJECT_DIR$/vertretungsplan.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -262,7 +257,14 @@
       <option name="project" value="LOCAL" />
       <updated>1584267054659</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Change encoding to utf-8">
+      <created>1584268715189</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1584268715189</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -291,7 +293,8 @@
     <MESSAGE value="Fixed tests.py" />
     <MESSAGE value="Add option to log in to dsbapi with different login credentials.&#10;Add some compliance for PEP8.&#10;Add ChatAction typing for all messages.&#10;Add classes for Vertretung, Lesson, Vertretungsplanliste&#10;Add more tests&#10;Add some comments" />
     <MESSAGE value="Prepare /information to be run at intervals while not sending repeating messages" />
-    <option name="LAST_COMMIT_MESSAGE" value="Prepare /information to be run at intervals while not sending repeating messages" />
+    <MESSAGE value="Change encoding to utf-8" />
+    <option name="LAST_COMMIT_MESSAGE" value="Change encoding to utf-8" />
   </component>
   <component name="WindowStateProjectService">
     <state x="98" y="58" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1584177200092">
@@ -306,10 +309,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="314" y="28" width="644" height="743" key="#vertretungsplan_bot/0.28.1280.744@0.28.1280.744" timestamp="1576267241324" />
-    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1584267054415">
+    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1584268715013">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1584267054415" />
+    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1584268715013" />
     <state x="119" y="87" width="1026" height="624" key="DiffContextDialog" timestamp="1576600586175">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
@@ -346,10 +349,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="129" y="35" key="SettingsEditor/0.28.1280.744@0.28.1280.744" timestamp="1578324236380" />
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1584267063747">
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1584268778725">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1584267063747" />
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1584268778725" />
     <state x="296" y="227" key="com.intellij.ide.util.TipDialog" timestamp="1584175439114">
       <screen x="0" y="28" width="1280" height="744" />
     </state>

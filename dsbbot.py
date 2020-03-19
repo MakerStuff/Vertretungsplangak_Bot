@@ -12,8 +12,8 @@ from orgafunctions import get_support
 class UserCommand:
     # usage_string represents the string a user has to enter to access that command eg.: /help
     usage_string = "/"
-    no_main_function = "Für diesen Befehl wurde noch keine Funktion hinterlegt."
-    no_detail_desc = "Für diesen Befehl wurde noch keine detaillierte Beschreibung hinterlegt."
+    no_main_function = "Fuer diesen Befehl wurde noch keine Funktion hinterlegt."
+    no_detail_desc = "Fuer diesen Befehl wurde noch keine detaillierte Beschreibung hinterlegt."
 
     def main(self,
              update_text: str,
@@ -128,8 +128,8 @@ class TelegramBot:
         return response
 
     class Help(UserCommand):
-        short = "Listet alle verfügbaren Befehle auf."
-        header = "Folgende Befehle stehen zur Verfügung:"
+        short = "Listet alle verfuegbaren Befehle auf."
+        header = "Folgende Befehle stehen zur Verfuegung:"
         detail = short
 
         def __init__(self,

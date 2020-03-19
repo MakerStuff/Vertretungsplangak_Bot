@@ -9,9 +9,9 @@ from orgafunctions import update_user_profile, get_support
 
 class Start(UserCommand):
     short = "Starthilfe"
-    detail = "{usage_string} beschreibt den Bot und gibt Vorschlage, welche Befehle du als nächstes nutzen könntest."
-    msg = """Dieser Bot liest den Vertretungsplan deiner Schule aus und sucht dir deine relevanten Einträge heraus.
-Registriere dich mit /register oder lass dir eine Liste der verfügbaren Befehle mit /help ausgeben."""
+    detail = "{usage_string} beschreibt den Bot und gibt Vorschlage, welche Befehle du als naechstes nutzen koenntest."
+    msg = """Dieser Bot liest den Vertretungsplan deiner Schule aus und sucht dir deine relevanten Eintraege heraus.
+Registriere dich mit /register oder lass dir eine Liste der verfuegbaren Befehle mit /help ausgeben."""
 
     def main(self,
              update_text: str,
@@ -22,7 +22,7 @@ Registriere dich mit /register oder lass dir eine Liste der verfügbaren Befehle
 
 class Register(UserCommand):
     short = "Registriere dich mit diesem Befehl."
-    detail = "Mit {usage_string} kannst du dich für diesen Bot registrieren."
+    detail = "Mit {usage_string} kannst du dich fuer diesen Bot registrieren."
     success = "Deine Registrierung war erfolgreich."
     already_registered = "Du hast dich bereits bei diesem Bot registriert."
 
@@ -80,10 +80,10 @@ bspw.: {usage_string} dsb_user=213061 dsb_pswd=dsbgak"""
 
 
 class DeleteProfile(UserCommand):
-    short = "Löscht alle Daten, die über dich bekannt sind."
-    success = "Deine Daten wurden erfolgreich gelöscht."
-    detail = """{usage_string} löscht alle Daten, die dem Bot über dich bekannt sind.
-Um sicher zu gehen, dass du deine Daten wirklich löschen willst, schreibe \"ja wirklich\" dahinter.
+    short = "Loescht alle Daten, die ueber dich bekannt sind."
+    success = "Deine Daten wurden erfolgreich geloescht."
+    detail = """{usage_string} loescht alle Daten, die dem Bot ueber dich bekannt sind.
+Um sicher zu gehen, dass du deine Daten wirklich loeschen willst, schreibe \"ja wirklich\" dahinter.
 bspw.: {usage_string} ja wirklich"""
 
     def main(self,
@@ -105,9 +105,9 @@ bspw.: {usage_string} ja wirklich"""
 
 
 class AddLesson(UserCommand):
-    short = "Füge Stunden zu deinem Stundenplan hinzu."
-    success = "Stunden wurden erfolgreich deinem Stundenplan hinzugefügt."
-    detail = """{usage_string} fügt Stunden zu deinem Stundenplan hinzu.
+    short = "Fuege Stunden zu deinem Stundenplan hinzu."
+    success = "Stunden wurden erfolgreich deinem Stundenplan hinzugefuegt."
+    detail = """{usage_string} fuegt Stunden zu deinem Stundenplan hinzu.
 
 Gib folgende Daten an:
 Klasse (bspw.: '05A', '12')
@@ -155,7 +155,7 @@ Du kannst auch mehrere Stunden auf einmal eintragen, indem du jede Stunde in ein
 
 class ViewLessons(UserCommand):
     short = "Sieh dir deinen Stundenplan an."
-    detail = "{usage_string} gibt dir eine Liste der Stunden in deinem Stundenplan zurück."
+    detail = "{usage_string} gibt dir eine Liste der Stunden in deinem Stundenplan zurueck."
     header = "Hier ist dein Stundenplan:"
 
     def main(self,
@@ -192,12 +192,12 @@ eg.: {usage_string} 1 room='1.23' subject='Bio'"""
 
 class RemoveLesson(UserCommand):
     short = "Entfernt eine Stunde von deinem Stundenplan."
-    detail = """{usage_string} löscht Einträge von deinem Stundenplan für jede Zahl, die du dahinter schreibst.
+    detail = """{usage_string} loescht Eintraege von deinem Stundenplan fuer jede Zahl, die du dahinter schreibst.
 Nutze {usage_string} um die ID der Stunden zu sehen.
 
 bspw.: /remove_lesson 1 5 13"""
-    success = """Die Stunden wurden erfolgreich von deinem Stundenplan gelöscht. 
-Nutze /view_lessons um deinen Stundenplan zu überprüfen."""
+    success = """Die Stunden wurden erfolgreich von deinem Stundenplan geloescht. 
+Nutze /view_lessons um deinen Stundenplan zu ueberpruefen."""
 
     def main(self,
              update_text: str,
@@ -215,10 +215,10 @@ Nutze /view_lessons um deinen Stundenplan zu überprüfen."""
 
 class Information(UserCommand):
     short = "Listet deinen Vertretungsplan auf."
-    detail = "{usage_string} sucht dir die für dich relevanten Einträge aus deinem Vertretungsplan heraus."
-    msg_relevant = "Für dich relevante Einträge:"
-    msg_news_for_today = "Folgende Nachrichten liegen für heute vor:"
-    no_relevants = "Für deinen Stundenplan liegen keine Einträge vor."
+    detail = "{usage_string} sucht dir die fuer dich relevanten Eintraege aus deinem Vertretungsplan heraus."
+    msg_relevant = "Fuer dich relevante Eintraege:"
+    msg_news_for_today = "Folgende Nachrichten liegen fuer heute vor:"
+    no_relevants = "Fuer deinen Stundenplan liegen keine Eintraege vor."
     no_news_for_today = "Es liegen heute keine Nachrichten zum Tag vor."
     no_timetable = "Du hast noch keinen Stundenplan eingerichtet."
 
@@ -264,8 +264,8 @@ class Information(UserCommand):
 
 
 class Test(UserCommand):
-    short = "Führt alle Tests des Bots durch."
-    detail = "{usage_string} führt alle Tests durch, die für diesen Bot geschrieben wurden."
+    short = "Fuehrt alle Tests des Bots durch."
+    detail = "{usage_string} fuehrt alle Tests durch, die fuer diesen Bot geschrieben wurden."
 
     def main(self,
              update_text,
@@ -277,8 +277,8 @@ class Test(UserCommand):
 
 class UserInfo(UserCommand):
     short = "Zeigt die Informationen zu deinem Profil an."
-    detail = "{usage_string} zeigt alle Informationen an, die der Bot über dich gespeichert hat."
-    msg = "Die Folgenden Informationen sind dem Bot über dich bekannt."
+    detail = "{usage_string} zeigt alle Informationen an, die der Bot ueber dich gespeichert hat."
+    msg = "Die Folgenden Informationen sind dem Bot ueber dich bekannt."
 
     def main(self,
              update_text,
@@ -294,7 +294,7 @@ class UserInfo(UserCommand):
 class Support(UserCommand):
     short = "Versendet eine Nachricht an den Support."
     detail = """{usage_string} versendet eine Nachricht an den Support.
-Bisher ist keine Funktion implementiert, die es dem Support erlaubt, zu antworten. Drücke dich also präzise aus.
+Bisher ist keine Funktion implementiert, die es dem Support erlaubt, zu antworten. Druecke dich also praezise aus.
 
 bspw.: {usage_string} Hallo Welt!"""
     success = "Dein Anliegen wurde an den Support versendet."
