@@ -1,4 +1,4 @@
-# coding: uft-8
+# coding: utf-8
 
 import vertretungsplan
 import sqlite3

@@ -264,7 +264,14 @@
       <option name="project" value="LOCAL" />
       <updated>1584268715189</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="fix umlauts&#10;ä -&gt; ae&#10;ö -&gt; oe&#10;ü -&gt; ue">
+      <created>1584613762388</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1584613762388</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -294,7 +301,8 @@
     <MESSAGE value="Add option to log in to dsbapi with different login credentials.&#10;Add some compliance for PEP8.&#10;Add ChatAction typing for all messages.&#10;Add classes for Vertretung, Lesson, Vertretungsplanliste&#10;Add more tests&#10;Add some comments" />
     <MESSAGE value="Prepare /information to be run at intervals while not sending repeating messages" />
     <MESSAGE value="Change encoding to utf-8" />
-    <option name="LAST_COMMIT_MESSAGE" value="Change encoding to utf-8" />
+    <MESSAGE value="fix umlauts&#10;ä -&gt; ae&#10;ö -&gt; oe&#10;ü -&gt; ue" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix umlauts&#10;ä -&gt; ae&#10;ö -&gt; oe&#10;ü -&gt; ue" />
   </component>
   <component name="WindowStateProjectService">
     <state x="98" y="58" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1584177200092">
@@ -309,9 +317,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="314" y="28" width="644" height="743" key="#vertretungsplan_bot/0.28.1280.744@0.28.1280.744" timestamp="1576267241324" />
-    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1584268715013">
+    <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2" timestamp="1584613761955">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
+    <state x="236" y="28" key="CommitChangelistDialog2/0.28.1280.744/1280.0.1680.1050@0.28.1280.744" timestamp="1584613761955" />
     <state x="236" y="28" width="838" height="743" key="CommitChangelistDialog2/0.28.1280.744@0.28.1280.744" timestamp="1584268715013" />
     <state x="119" y="87" width="1026" height="624" key="DiffContextDialog" timestamp="1576600586175">
       <screen x="0" y="28" width="1280" height="744" />
@@ -349,9 +358,10 @@
       <screen x="0" y="28" width="1280" height="744" />
     </state>
     <state x="129" y="35" key="SettingsEditor/0.28.1280.744@0.28.1280.744" timestamp="1578324236380" />
-    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1584268778725">
+    <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2" timestamp="1584613778012">
       <screen x="0" y="28" width="1280" height="744" />
     </state>
+    <state x="235" y="136" key="Vcs.Push.Dialog.v2/0.28.1280.744/1280.0.1680.1050@0.28.1280.744" timestamp="1584613778012" />
     <state x="235" y="136" width="802" height="527" key="Vcs.Push.Dialog.v2/0.28.1280.744@0.28.1280.744" timestamp="1584268778725" />
     <state x="296" y="227" key="com.intellij.ide.util.TipDialog" timestamp="1584175439114">
       <screen x="0" y="28" width="1280" height="744" />
