@@ -1,9 +1,11 @@
 import json
+import config
 
 from dsbbot import DSBBot
 import usercommands
 
 import logging
+import os
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -11,9 +13,20 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    token = json.loads(open("../Vertretungsplangak_Data/general_information.json").read())["token"]
+    directory = config.data_location
+    general_information = "general_information.json"
+    database = "user_data.sqlite"
+    if not os.path.exists(directory):
+        os.mkdir(directory)
+    if not os.path.exists(directory + general_information):
+        with open(directory + general_information, "w") as f:
+            f.write(json.dumps({
+                "token": input("Enter your token: ")
+            }))
+            f.close()
+    token = json.loads(open(directory + general_information).read())["token"]
     my_bot = DSBBot(token=token,
-                    database_name="../Vertretungsplangak_Data/user_data.sqlite",
+                    database_name=directory + database,
                     uc_start=usercommands.Start,
                     uc_register=usercommands.Register,
                     uc_update_profile=usercommands.UpdateProfile,
