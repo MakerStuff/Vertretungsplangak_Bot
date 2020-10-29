@@ -13,7 +13,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    directory = config.data_location
+    directory = os.path.expanduser(config.data_location)
     general_information = "general_information.json"
     database = "user_data.sqlite"
     if not os.path.exists(directory):
@@ -24,6 +24,7 @@ if __name__ == "__main__":
                 "token": input("Enter your token: ")
             }))
             f.close()
+        print(f"token has been saved to {directory + general_information}")
     token = json.loads(open(directory + general_information).read())["token"]
     my_bot = DSBBot(token=token,
                     database_name=directory + database,

@@ -10,6 +10,7 @@ import urllib3
 import orgafunctions
 import usercommands
 import vertretungsplan
+import config
 from dsbbot import DSBBot
 
 
@@ -27,8 +28,8 @@ class DummyFunction(usercommands.UserCommand):
 
 
 class Test:
-    database_name = "../Vertretungsplangak_Data/test_data.sqlite"
-    token = json.loads(open("../Vertretungsplangak_Data/general_information.json").read())["token"]
+    database_name = os.path.expanduser(config.data_location + "test_data.sqlite")
+    token = json.loads(open(os.path.expanduser(config.data_location + "general_information.json")).read())["token"]
 
     def run(self):
         results = {}
@@ -67,7 +68,7 @@ class Test:
         dsb_bot.run_command(update_text="/register",
                             chat_id=chat_1,
                             database_name=self.database_name)
-        supporter_1 = orgafunctions.get_support(chat_1, self.database_name)
+        supporter_1 = orgafunctions.get_support(chat_1, database_name=self.database_name)
         assert supporter_1 == chat_1, \
             f"Assigning support to first chat does not work correctly ({chat_1} -> {supporter_1})"
         chat_2 = 5678

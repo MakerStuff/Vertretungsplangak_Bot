@@ -1,1 +1,1 @@
-data_location = "~/.vertretungsplanbot"
+data_location = "~/.vertretungsplanbot/"

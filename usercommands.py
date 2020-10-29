@@ -53,7 +53,11 @@ class Register(UserCommand):
         db.commit()
 
         # Set a supporter
-        get_support(chat_id, database_name)
+        update_user_profile(
+            chat_id=chat_id,
+            parameters={"support": get_support(chat_id, database_name)},
+            database_name=database_name,
+        )
         db.close()
         return {chat_id: {"text": self.success}}
 
