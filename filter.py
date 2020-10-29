@@ -2,9 +2,6 @@ import re
 from typing import *
 
 
-__author__ = "Fabian Becker <fab.becker@outlook.de>"
-
-
 class Filter:
     def __init__(self, **kwargs):
         # any argument matching the pattern is accepted
