@@ -1,5 +1,6 @@
 from typing import *
 import sqlite3
+import json
 
 
 def get_support(chat_id: int,
@@ -17,6 +18,10 @@ def get_support(chat_id: int,
                                     database_name)
     db.close()
     return supporter
+
+
+def get_config():
+    return json.loads(open("../Vertretungsplangak_Data/general_information.json").read())
 
 
 def update_user_profile(chat_id: int,

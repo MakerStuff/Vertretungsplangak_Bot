@@ -2,11 +2,11 @@
 
 import sqlite3
 
-from telegram.ext import Updater, MessageHandler
+from telegram.ext import Updater, MessageHandler, CallbackContext
 from telegram.error import BadRequest
 from telegram import ChatAction
 
-from orgafunctions import get_support
+from orgafunctions import get_support, get_config
 
 
 class UserCommand:
@@ -64,6 +64,22 @@ class UserCommand:
             return {chat_id: {"text": self.no_detail_desc},
                     get_support(chat_id, database_name): {"text": self.usage_string + ": " + self.no_detail_desc}}
 
+    def on_error(self, update, context: CallbackContext):
+        return {
+            update.message.chat_id: "\n".join([
+                "Das hat leider nicht funktionert.",
+                f"Bitte lass uns den folgenden Text zukommen. Am besten auf {get_config()['url']}",
+                context.error.args,
+            ])
+        }
+
+
+class BetaCommand(UserCommand):
+    def on_error(self, update, context):
+        return {
+            update.message.chat_id: "Diese Funktion funktioniert noch nicht. Wir bitten um Verzeihung."
+        }
+
 
 class TelegramBot:
     columns = []
@@ -98,9 +114,12 @@ class TelegramBot:
         cmd = update.message.text.lstrip("/").split(" ")[0].split("@")[0]
         result = None
         if cmd in command_list:
-            result = self.run_command(update_text=update.message.text,
-                                      chat_id=update.message.chat_id,
-                                      database_name=self.database_name)
+            try:
+                result = self.run_command(update_text=update.message.text,
+                                          chat_id=update.message.chat_id,
+                                          database_name=self.database_name)
+            except:
+                result = self.__getattribute__(cmd).on_error(update, context)
         else:
             try:
                 result = {update.message.chat_id: {"text": self.Error.cmd_unavailable.replace("{cmd}", cmd)}}

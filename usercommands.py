@@ -95,7 +95,7 @@ bspw.: {usage_string} ja wirklich"""
              chat_id: int,
              database_name: str,
              *args, **kwargs):
-        if str.join(" ", update_text.split(" ")[1:]) == "ja wirklich":
+        if update_text.endswith("ja wirklich"):
             db = sqlite3.connect(database_name)
             # Delete from users table
             db.execute(f"DELETE FROM users WHERE chat_id={chat_id};")
@@ -296,7 +296,7 @@ class UserInfo(UserCommand):
 
 
 class Support(UserCommand):
-    short = "Versendet eine Nachricht an den Support."
+    short = "Experimental: Versendet eine Nachricht an den Support."
     detail = """{usage_string} versendet eine Nachricht an den Support.
 Bisher ist keine Funktion implementiert, die es dem Support erlaubt, zu antworten. Druecke dich also praezise aus.
 

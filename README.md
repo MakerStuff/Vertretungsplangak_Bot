@@ -1,3 +1,5 @@
+> Dieses Projekt wird aktuell nicht mehr weiterentwickelt. Falls du das Projekt übernehmen möchtest, tritt bitte mit dem aktuellen Entwickler in Kontakt.
+
 # Vertretungsplangak_Bot
 Diese Repository beinhaltet den Code für den [Vertretungsplangak_Bot auf Telegram](https://t.me/vertretungsplangak_bot).
 
